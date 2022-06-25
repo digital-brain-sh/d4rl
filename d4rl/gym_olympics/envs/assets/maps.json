@@ -246,8 +246,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -257,8 +257,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -598,8 +598,8 @@
           "mass": 1,
           "radius": 18.75,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -609,8 +609,8 @@
           "mass": 1,
           "radius": 18.75,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -1007,8 +1007,8 @@
           "mass": 1,
           "radius": 18.75,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -1018,8 +1018,8 @@
           "mass": 1,
           "radius": 18.75,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -1684,8 +1684,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -1695,8 +1695,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -2173,8 +2173,8 @@
           "mass": 1,
           "radius": 9.375,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -2184,8 +2184,8 @@
           "mass": 1,
           "radius": 9.375,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -2540,8 +2540,8 @@
           "mass": 1,
           "radius": 20,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -2551,8 +2551,8 @@
           "mass": 1,
           "radius": 20,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -2899,8 +2899,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -2910,8 +2910,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -3048,8 +3048,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -3059,8 +3059,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -3275,8 +3275,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -3286,8 +3286,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -3710,8 +3710,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -3721,8 +3721,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },
@@ -4201,8 +4201,8 @@
           "mass": 1,
           "radius": 15,
           "color": "purple",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         },
         "component2": {
           "initial_position": [
@@ -4212,8 +4212,8 @@
           "mass": 1,
           "radius": 15,
           "color": "green",
-          "vis": 150,
-          "vis_clear": 6
+          "vis": 200,
+          "vis_clear": 5
         }
       }
     },

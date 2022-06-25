@@ -1,20 +1,21 @@
-
-import time
-import pygame
-import json
-
-import os
-import random
 from pathlib import Path
 import sys
 CURRENT_PATH = str(Path(__file__).resolve().parent)
 sys.path.append(CURRENT_PATH)
+import random
 from olympics_engine.core import OlympicsBase
 from olympics_engine.viewer import Viewer, debug
+import time
+import pygame
+import json
+import sys
+import os
 
-class running(OlympicsBase):
+
+class rd_running(OlympicsBase):
     def __init__(self, map_id=None, seed=100, vis=200, vis_clear=5, agent1_color='light red',
                  agent2_color='blue'):
+        self.seed = seed
         self.maps_path = os.path.join(os.path.dirname(__file__), 'assets/maps.json')
         if map_id is None:
             map_id = random.randint(1, 11)
@@ -33,7 +34,7 @@ class running(OlympicsBase):
 
         self.map_index = map_index
 
-        super(running, self).__init__(Gamemap, seed)
+        super(rd_running, self).__init__(Gamemap, seed)
 
         self.game_name = 'running-competition'
         self.meta_map = self.create_scenario(self.game_name)
@@ -48,7 +49,7 @@ class running(OlympicsBase):
 
         self.tau = self.original_tau * self.faster
         self.gamma = 1 - (1 - self.original_gamma) * self.faster
-
+        # self.reset()
         # self.gamma = 1  # v衰减系数
         # self.restitution = 0.5
         # self.print_log = False
@@ -62,13 +63,16 @@ class running(OlympicsBase):
 
     def reset(self):
         self.set_seed()
-        self.init_state()
         self.step_cnt = 0
         self.done = False
 
-        self.viewer = Viewer(self.view_setting)
-        self.display_mode=False
+        map_id = random.randint(1, 11)
+        Gamemap, self.map_index = self.choose_a_map(idx=map_id)
+        super(rd_running, self).__init__(Gamemap, self.seed)
 
+        self.viewer = Viewer(self.view_setting)
+        self.init_state()
+        self.display_mode = False
         return self.get_obs()
 
     @staticmethod
@@ -237,6 +241,6 @@ class running(OlympicsBase):
 
 
 if __name__ == '__main__':
-    running = running()
+    running = rd_running()
     map = running.choose_a_map()
     print(map)

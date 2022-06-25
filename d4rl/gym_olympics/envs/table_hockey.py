@@ -1,3 +1,8 @@
+from pathlib import Path
+import sys
+
+CURRENT_PATH = str(Path(__file__).resolve().parent)
+sys.path.append(CURRENT_PATH)
 from olympics_engine.core import OlympicsBase
 from olympics_engine.viewer import Viewer, debug
 import pygame
@@ -438,4 +443,3 @@ class table_hockey(OlympicsBase):
                     ),
                     )
         return GameMap
-
