@@ -1,3 +1,7 @@
+from pathlib import Path
+import sys
+CURRENT_PATH = str(Path(__file__).resolve().parent)
+sys.path.append(CURRENT_PATH)
 from olympics_engine.core import OlympicsBase
 from olympics_engine.viewer import Viewer, debug
 import pygame
@@ -8,6 +12,7 @@ from pathlib import Path
 import math
 import random
 import json
+
 
 class football(OlympicsBase):
     def __init__(self):
@@ -32,7 +37,7 @@ class football(OlympicsBase):
         self.wall_restitution = map['env_cfg']['wall_restitution']
         self.circle_restitution = map['env_cfg']['circle_restitution']
         self.tau = self.original_tau * self.faster
-        self.gamma = 1-(1-self.original_gamma)*self.faster
+        self.gamma = 1 - (1 - self.original_gamma) * self.faster
 
         self.speed_cap = map['env_cfg']['speed_cap']
         self.max_step = map['env_cfg']['max_step']
@@ -47,7 +52,6 @@ class football(OlympicsBase):
     def check_overlap(self):
         pass
 
-
     def reset(self):
         self.set_seed()
         self.init_state()
@@ -55,11 +59,11 @@ class football(OlympicsBase):
         self.done = False
 
         self.viewer = Viewer(self.view_setting)
-        self.display_mode=False
+        self.display_mode = False
         pygame.display.set_caption("Olympics-Football")
-        self.viewer.set_screen(size = (600, 400), color = (143,203,174), pos = (50,200))
-        self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (5, 350))
-        self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (650, 350))
+        self.viewer.set_screen(size=(600, 400), color=(143, 203, 174), pos=(50, 200))
+        self.viewer.set_screen(size=(45, 100), color=(100, 142, 122), pos=(5, 350))
+        self.viewer.set_screen(size=(45, 100), color=(100, 142, 122), pos=(650, 350))
 
         self.ball_pos_init()
 
@@ -98,7 +102,7 @@ class football(OlympicsBase):
         self.cross_detect()
 
         step_reward = self.get_reward()
-        obs_next = self.get_obs()              #need to add agent or ball check in get_obs
+        obs_next = self.get_obs()  # need to add agent or ball check in get_obs
 
         done = self.is_terminal()
         self.done = done
@@ -114,14 +118,14 @@ class football(OlympicsBase):
 
     def _build_from_raw_obs(self, obs):
         if self.minimap_mode:
-            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0,1)
-            return [{"agent_obs": obs[0], "minimap":image, "id":"team_0"},
-                    {"agent_obs": obs[1], "minimap": image, "id":"team_1"}]
+            image = pygame.surfarray.array3d(self.viewer.background).swapaxes(0, 1)
+            return [{"agent_obs": obs[0], "minimap": image, "id": "team_0"},
+                    {"agent_obs": obs[1], "minimap": image, "id": "team_1"}]
         else:
-            return [{"agent_obs":obs[0], "id":"team_0"}, {"agent_obs": obs[1], "id":"team_1"}]
+            return [{"agent_obs": obs[0], "id": "team_0"}, {"agent_obs": obs[1], "id": "team_1"}]
 
     def _build_minimap(self):
-        #need to render first
+        # need to render first
         if not self.display_mode:
             self.viewer.set_mode()
             self.display_mode = True
@@ -134,9 +138,6 @@ class football(OlympicsBase):
 
         if self.draw_obs:
             self.viewer.draw_obs(self.obs_boundary, self.agent_list)
-
-
-
 
     def cross_detect(self):
         """
@@ -159,7 +160,6 @@ class football(OlympicsBase):
                             agent.finished = True  # when agent has crossed the finished line
                             agent.alive = False
 
-
     def get_reward(self):
 
         ball_end_pos = None
@@ -176,9 +176,7 @@ class football(OlympicsBase):
         elif ball_end_pos is not None and ball_end_pos[0] > 400:
             return [1., 0]
         else:
-            return [0. ,0.]
-
-
+            return [0., 0.]
 
     def is_terminal(self):
 
@@ -210,7 +208,6 @@ class football(OlympicsBase):
             else:
                 raise NotImplementedError
 
-
     def render(self, info=None):
 
         if self.minimap_mode:
@@ -219,11 +216,9 @@ class football(OlympicsBase):
 
             if not self.display_mode:
                 self.viewer.set_mode()
-                self.display_mode=True
+                self.display_mode = True
                 if self.beauty_render:
                     self._load_image()
-
-
 
             self.viewer.draw_background()
             if self.beauty_render:
@@ -245,7 +240,8 @@ class football(OlympicsBase):
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap = 130, energy_width=0 if self.beauty_render else 5)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap=130,
+                                      energy_width=0 if self.beauty_render else 5)
 
         if self.show_traj:
             self.get_trajectory()
@@ -262,44 +258,54 @@ class football(OlympicsBase):
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
-        #self.viewer.background.fill((255, 255, 255))
+        # self.viewer.background.fill((255, 255, 255))
 
     def _load_image(self):
-        self.playground_image = pygame.image.load(os.path.join(self.current_path, "assets/football/playground.png")).convert_alpha()
-        self.playground_image = pygame.transform.scale(self.playground_image, size = (720, 480))
+        self.playground_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/football/playground.png")).convert_alpha()
+        self.playground_image = pygame.transform.scale(self.playground_image, size=(720, 480))
 
-        self.player_1_image = pygame.image.load(os.path.join(self.current_path, "assets/football/agent1-V2.png")).convert_alpha()
-        self.player_2_image = pygame.image.load(os.path.join(self.current_path, "assets/football/agent2-V2.png")).convert_alpha()
-        self.ball_image = pygame.image.load(os.path.join(self.current_path, "assets/football/football.png")).convert_alpha()
-        self.player_1_view_image = pygame.image.load(os.path.join(self.current_path, "assets/football/sight1.png")).convert_alpha()
-        self.player_2_view_image = pygame.image.load(os.path.join(self.current_path, "assets/football/sight2.png")).convert_alpha()
+        self.player_1_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/football/agent1-V2.png")).convert_alpha()
+        self.player_2_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/football/agent2-V2.png")).convert_alpha()
+        self.ball_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/football/football.png")).convert_alpha()
+        self.player_1_view_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/football/sight1.png")).convert_alpha()
+        self.player_2_view_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/football/sight2.png")).convert_alpha()
 
         self.wood_image = pygame.image.load(os.path.join(self.current_path, "assets/board.png")).convert_alpha()
-        self.wood_image1 = pygame.transform.scale(self.wood_image, size = (300,170))
-        self.wood_image2 = pygame.transform.scale(self.wood_image, size = (70,30))
+        self.wood_image1 = pygame.transform.scale(self.wood_image, size=(300, 170))
+        self.wood_image2 = pygame.transform.scale(self.wood_image, size=(70, 30))
 
-        self.red_energy_image = pygame.image.load(os.path.join(self.current_path, "assets/energy-red.png")).convert_alpha()
+        self.red_energy_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/energy-red.png")).convert_alpha()
         red_energy_size = self.red_energy_image.get_size()
-        self.red_energy_image = pygame.transform.scale(self.red_energy_image, size = (110,red_energy_size[1]*110/red_energy_size[0]))
+        self.red_energy_image = pygame.transform.scale(self.red_energy_image,
+                                                       size=(110, red_energy_size[1] * 110 / red_energy_size[0]))
 
-        self.blue_energy_image = pygame.image.load(os.path.join(self.current_path, "assets/energy-blue.png")).convert_alpha()
+        self.blue_energy_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/energy-blue.png")).convert_alpha()
         blue_energy_size = self.blue_energy_image.get_size()
-        self.blue_energy_image = pygame.transform.scale(self.blue_energy_image, size = (110, blue_energy_size[1]*110/blue_energy_size[0]))
+        self.blue_energy_image = pygame.transform.scale(self.blue_energy_image,
+                                                        size=(110, blue_energy_size[1] * 110 / blue_energy_size[0]))
 
-        self.red_energy_bar_image = pygame.image.load(os.path.join(self.current_path, "assets/energy-red-bar.png")).convert_alpha()
+        self.red_energy_bar_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/energy-red-bar.png")).convert_alpha()
         red_energy_bar_size = self.red_energy_bar_image.get_size()
         self.red_energy_bar_image = pygame.transform.scale(self.red_energy_bar_image, size=(85, 10))
 
-        self.blue_energy_bar_image = pygame.image.load(os.path.join(self.current_path, "assets/energy-blue-bar.png")).convert_alpha()
+        self.blue_energy_bar_image = pygame.image.load(
+            os.path.join(self.current_path, "assets/energy-blue-bar.png")).convert_alpha()
         blue_energy_bar_size = self.blue_energy_bar_image.get_size()
         self.blue_energy_bar_image = pygame.transform.scale(self.blue_energy_bar_image, size=(85, 10))
-
-
 
     def _draw_playground(self):
         # playground_image_size = self.playground_image.get_size()
         # image = pygame.transform.scale(self.playground_image, size = (720, 480))
-        loc = (0,170)
+        loc = (0, 170)
         self.viewer.background.blit(self.playground_image, loc)
 
         # wood_image = pygame.transform.scale(self.wood_image, size = (300,170))
@@ -313,10 +319,8 @@ class football(OlympicsBase):
         # blue_energy_size = self.blue_energy_image.get_size()
         # blue_energy_image = pygame.transform.scale(self.blue_energy_image, size = (110, blue_energy_size[1]*110/blue_energy_size[0]))
 
-
         self.viewer.background.blit(self.red_energy_image, (425, 130))
         self.viewer.background.blit(self.blue_energy_image, (555, 130))
-
 
     def _draw_energy(self, agent_list):
 
@@ -325,7 +329,6 @@ class football(OlympicsBase):
         # red_energy_bar = pygame.transform.scale(self.red_energy_bar_image, size=(85, 10))
         # blue_energy_bar = pygame.transform.scale(self.blue_energy_bar_image, size=(85, 10))
 
-
         start_pos = [448, 136]
         # end_pos = [450+100*remain_energy, 130]
         image = self.red_energy_bar_image
@@ -333,15 +336,12 @@ class football(OlympicsBase):
             if agent_list[agent_idx].type == 'ball':
                 continue
 
-            remain_energy = agent_list[agent_idx].energy/agent_list[agent_idx].energy_cap
+            remain_energy = agent_list[agent_idx].energy / agent_list[agent_idx].energy_cap
 
-
-            self.viewer.background.blit(image, start_pos, [0, 0, 85*remain_energy, 10])
+            self.viewer.background.blit(image, start_pos, [0, 0, 85 * remain_energy, 10])
 
             start_pos[0] += 130
             image = self.blue_energy_bar_image
-
-
 
     def _draw_image(self, pos_list, agent_list, direction_list, view_list):
         assert len(pos_list) == len(agent_list)
@@ -353,35 +353,39 @@ class football(OlympicsBase):
             color = agent_list[i].color
             theta = direction_list[i][0]
             vis = agent_list[i].visibility
-            view_back = self.VIEW_BACK*vis if vis is not None else 0
+            view_back = self.VIEW_BACK * vis if vis is not None else 0
 
             if agent.type == 'agent':
                 if color == self.agent1_color:
                     player_image_size = self.player_1_image.get_size()
-                    image= pygame.transform.scale(self.player_1_image, size = (r*2, player_image_size[1]*(r*2)/player_image_size[0]))
-                    loc = (t[0]-r ,t[1]-r)
+                    image = pygame.transform.scale(self.player_1_image,
+                                                   size=(r * 2, player_image_size[1] * (r * 2) / player_image_size[0]))
+                    loc = (t[0] - r, t[1] - r)
 
-                    view_image = pygame.transform.scale(self.player_1_view_image, size = (vis, vis))
+                    view_image = pygame.transform.scale(self.player_1_view_image, size=(vis, vis))
                     rotate_view_image = pygame.transform.rotate(view_image, -theta)
 
-                    new_view_center = [t[0]+(vis/2-view_back)*math.cos(theta*math.pi/180), t[1]+(vis/2-view_back)*math.sin(theta*math.pi/180)]
+                    new_view_center = [t[0] + (vis / 2 - view_back) * math.cos(theta * math.pi / 180),
+                                       t[1] + (vis / 2 - view_back) * math.sin(theta * math.pi / 180)]
                     new_view_rect = rotate_view_image.get_rect(center=new_view_center)
                     self.viewer.background.blit(rotate_view_image, new_view_rect)
 
-                    #view player image
+                    # view player image
                     player_image_view = pygame.transform.rotate(image, 90)
                     self.viewer.background.blit(player_image_view, (470, 90))
 
 
                 elif color == self.agent2_color:
                     player_image_size = self.player_2_image.get_size()
-                    image= pygame.transform.scale(self.player_2_image, size = (r*2, player_image_size[1]*(r*2)/player_image_size[0]))
-                    loc = (t[0]-r ,t[1]-r)
+                    image = pygame.transform.scale(self.player_2_image,
+                                                   size=(r * 2, player_image_size[1] * (r * 2) / player_image_size[0]))
+                    loc = (t[0] - r, t[1] - r)
 
-                    view_image = pygame.transform.scale(self.player_2_view_image, size = (vis, vis))
+                    view_image = pygame.transform.scale(self.player_2_view_image, size=(vis, vis))
                     rotate_view_image = pygame.transform.rotate(view_image, -theta)
 
-                    new_view_center = [t[0]+(vis/2-view_back)*math.cos(theta*math.pi/180), t[1]+(vis/2-view_back)*math.sin(theta*math.pi/180)]
+                    new_view_center = [t[0] + (vis / 2 - view_back) * math.cos(theta * math.pi / 180),
+                                       t[1] + (vis / 2 - view_back) * math.sin(theta * math.pi / 180)]
                     new_view_rect = rotate_view_image.get_rect(center=new_view_center)
                     self.viewer.background.blit(rotate_view_image, new_view_rect)
 
@@ -390,13 +394,12 @@ class football(OlympicsBase):
 
                     # self.viewer.background.blit(image_green, loc)
             elif agent.type == 'ball':
-                image = pygame.transform.scale(self.ball_image, size = (r*2, r*2))
+                image = pygame.transform.scale(self.ball_image, size=(r * 2, r * 2))
                 loc = (t[0] - r, t[1] - r)
 
             rotate_image = pygame.transform.rotate(image, -theta)
 
-            new_rect = rotate_image.get_rect(center=image.get_rect(center = t).center)
-
+            new_rect = rotate_image.get_rect(center=image.get_rect(center=t).center)
 
             self.viewer.background.blit(rotate_image, new_rect)
 
