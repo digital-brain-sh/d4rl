@@ -40,7 +40,6 @@ class football(OlympicsBase):
         self.gamma = 1 - (1 - self.original_gamma) * self.faster
 
         self.speed_cap = map['env_cfg']['speed_cap']
-        self.max_step = map['env_cfg']['max_step']
         self.energy_recover_rate = map['env_cfg']["energy_recover_rate"]
 
         self.print_log = False
@@ -93,7 +92,6 @@ class football(OlympicsBase):
         return action
 
     def step(self, actions_list):
-
         actions_list = self.check_action(actions_list)
 
         self.stepPhysics(actions_list)
@@ -114,7 +112,7 @@ class football(OlympicsBase):
 
         output_obs_next = self._build_from_raw_obs(obs_next)
 
-        return output_obs_next, step_reward, done, ''
+        return output_obs_next, step_reward, done, {}
 
     def _build_from_raw_obs(self, obs):
         if self.minimap_mode:
@@ -180,7 +178,7 @@ class football(OlympicsBase):
 
     def is_terminal(self):
 
-        if self.step_cnt >= self.max_step:
+        if self.step_cnt >= self.spec.max_episode_steps:
             return True
 
         for agent_idx in range(self.agent_num):
