@@ -41,7 +41,6 @@ class running(OlympicsBase):
         self.original_gamma = self.meta_map['env_cfg']['gamma']
         self.wall_restitution = self.meta_map['env_cfg']['wall_restitution']
         self.circle_restitution = self.meta_map['env_cfg']['circle_restitution']
-        self.max_step = self.meta_map['env_cfg']['max_step']
         self.energy_recover_rate = self.meta_map['env_cfg']['energy_recover_rate']
         self.speed_cap = self.meta_map['env_cfg']['speed_cap']
         self.faster = self.meta_map['env_cfg']['faster']
@@ -97,7 +96,7 @@ class running(OlympicsBase):
 
     def is_terminal(self):
 
-        if self.step_cnt >= self.max_step:
+        if self.step_cnt >= self.spec.max_episode_steps:
             return True
 
         for agent_idx in range(self.agent_num):
@@ -110,9 +109,9 @@ class running(OlympicsBase):
 
         previous_pos = self.agent_pos
 
-        time1 = time.time()
+        # time1 = time.time()
         self.stepPhysics(actions_list, self.step_cnt)
-        time2 = time.time()
+        # time2 = time.time()
         # print('stepPhysics time = ', time2 - time1)
         self.speed_limit()
 
@@ -122,15 +121,15 @@ class running(OlympicsBase):
         step_reward = self.get_reward()
         done = self.is_terminal()
 
-        time3 = time.time()
+        # time3 = time.time()
         obs_next = self.get_obs()
-        time4 = time.time()
+        # time4 = time.time()
         # print('render time = ', time4-time3)
         # obs_next = 1
         # self.check_overlap()
         self.change_inner_state()
 
-        return obs_next, step_reward, done, ''
+        return obs_next, step_reward, done, {}
 
     def check_win(self):
         if self.agent_list[0].finished and not (self.agent_list[1].finished):
