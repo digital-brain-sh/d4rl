@@ -21,6 +21,10 @@ class rd_running(OlympicsBase):
             map_id = random.randint(1, 11)
         Gamemap, map_index = self.choose_a_map(idx=map_id)
         # fixme(yan): penatration in some maps, need to check engine, vis
+        self.vis = vis
+        self.vis_clear = vis_clear
+        self.agent1_color = agent1_color
+        self.agent2_color = agent2_color
         if vis is not None:
             for a in Gamemap['agents']:
                 a.visibility = vis
@@ -67,6 +71,16 @@ class rd_running(OlympicsBase):
 
         map_id = random.randint(1, 11)
         Gamemap, self.map_index = self.choose_a_map(idx=map_id)
+        if self.vis is not None:
+            for a in Gamemap['agents']:
+                a.visibility = self.vis
+                a.visibility_clear = self.vis_clear
+                if a.color == 'purple':
+                    a.color = self.agent1_color
+                    a.original_color = self.agent1_color
+                elif a.color == 'green':
+                    a.color = self.agent2_color
+                    a.original_color = self.agent2_color
         super(rd_running, self).__init__(Gamemap, self.seed)
 
         self.viewer = Viewer(self.view_setting)
