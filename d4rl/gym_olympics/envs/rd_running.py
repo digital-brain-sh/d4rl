@@ -10,12 +10,14 @@ import pygame
 import json
 import sys
 import os
-
+from gym import spaces
 
 class rd_running(OlympicsBase):
     def __init__(self, map_id=None, seed=100, vis=200, vis_clear=5, agent1_color='light red',
                  agent2_color='blue'):
         self.seed = seed
+        self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
+        self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
         self.maps_path = os.path.join(os.path.dirname(__file__), 'assets/maps.json')
         if map_id is None:
             map_id = random.randint(1, 11)

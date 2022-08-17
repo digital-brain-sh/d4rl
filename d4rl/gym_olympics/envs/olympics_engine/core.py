@@ -29,7 +29,10 @@ class OlympicsBase(gym.Env):
         self.VIEW_BACK = 0.2
         self.seed = seed
         self.set_seed()
-
+        # self.action_space = spaces.Box(
+        #     low=np.array([-100, -30]), high=np.array([200, 30]), dtype=np.float32)
+        # self.observation_space = spaces.Box(
+        #     low=0, high=10, shape=(2, 40, 40), dtype=np.uint8)
         self.action_f = [-100, 200]
         self.action_theta = [-30, 30]
 
@@ -46,8 +49,6 @@ class OlympicsBase(gym.Env):
 
         self.show_traj = True
         self.draw_obs = True
-        self.print_log = False
-        self.print_log2 = False
         self.map_object = []
         self.global_wall_ignore = []
         self.global_circle_ignore = []
@@ -60,29 +61,19 @@ class OlympicsBase(gym.Env):
 
         self.step_cnt = 0
         self.done = False
-        self.max_step = 400
 
         self.energy_recover_rate = 200
         self.speed_cap = 500
-
-        # for debugg
-        # self.obs_boundary_init = [[80,350], [180,350],[180,450],[80,450]]
-        # self.obs_boundary = self.obs_boundary_init
         self.obs_boundary_init = list()
         self.obs_boundary = self.obs_boundary_init
 
         self.map = map
-        # self.check_valid_map()
         self.generate_map(map)
         self.merge_map()
 
         self.view_setting = map["view"]
         self.map_num = None
-        # self.is_render = True
         self.display_mode = False
-
-        # self.reset()
-        # self.check_overlap()
 
     def check_valid_map(self):  # not using due to conflicting with arc center repitition...
         object_init_list = [str(self.map['objects'][i].init_pos) for i in range(len(self.map['objects']))]
@@ -608,10 +599,6 @@ class OlympicsBase(gym.Env):
         self.global_wall_ignore, self.global_circle_ignore = [], []  # only inherit once
 
         while True:
-            if self.print_log:
-                print('Remaining time = ', remaining_t)
-                print('The pos = {}, the v = {}'.format(temp_pos_container, temp_v_container))
-
             earliest_wall_col_t, collision_wall_target, target_wall_idx, current_agent_idx = \
                 self.bounceable_wall_collision_time(temp_pos_container, temp_v_container, remaining_t,
                                                     ignore_wall)  # collision detection with walls
@@ -619,23 +606,13 @@ class OlympicsBase(gym.Env):
             earliest_circle_col_t, collision_circle_target, current_circle_idx, target_circle_idx = \
                 self.circle_collision_time(temp_pos_container, temp_v_container, remaining_t, ignore_circle)
 
-            if self.print_log:
-                print('Wall t = {}, collide = {}, agent_idx = {}, wall_idx = {}'.format(
-                    earliest_wall_col_t, collision_wall_target, current_agent_idx, target_wall_idx))
-                print('Circle t = {}, collide = {}, agent_idx = {}, target_idx = {}'.format(
-                    earliest_circle_col_t, collision_circle_target, current_circle_idx, target_circle_idx))
-
             if collision_wall_target is not None and collision_circle_target is None:
-                if self.print_log:
-                    print('HIT THE WALL!')
 
                 temp_pos_container, temp_v_container, remaining_t, ignore_wall = \
                     self.handle_wall(target_wall_idx, collision_wall_target, current_agent_idx, earliest_wall_col_t,
                                      temp_pos_container, temp_v_container, remaining_t, ignore_wall)
 
             elif collision_wall_target is None and collision_circle_target == 'circle':
-                if self.print_log:
-                    print('HIT THE BALL!')
 
                 temp_pos_container, temp_v_container, remaining_t, ignore_circle = \
                     self.handle_circle(target_circle_idx, collision_circle_target, current_circle_idx,
@@ -643,20 +620,14 @@ class OlympicsBase(gym.Env):
                                        ignore_circle)
 
             elif collision_wall_target is not None and collision_circle_target == 'circle':
-                if self.print_log:
-                    print('HIT BOTH!')
 
                 if earliest_wall_col_t < earliest_circle_col_t:
-                    if self.print_log:
-                        print('PROCESS WALL FIRST!')
 
                     temp_pos_container, temp_v_container, remaining_t, ignore_wall = \
                         self.handle_wall(target_wall_idx, collision_wall_target, current_agent_idx, earliest_wall_col_t,
                                          temp_pos_container, temp_v_container, remaining_t, ignore_wall)
 
                 elif earliest_wall_col_t >= earliest_circle_col_t:
-                    if self.print_log:
-                        print('PROCESS CIRCLE FIRST!')
 
                     temp_pos_container, temp_v_container, remaining_t, ignore_circle = \
                         self.handle_circle(target_circle_idx, collision_circle_target, current_circle_idx,
@@ -667,8 +638,6 @@ class OlympicsBase(gym.Env):
                     raise NotImplementedError("collision error")
 
             else:  # no collision within this time interval
-                if self.print_log:
-                    print('NO COLLISION!')
                 temp_pos_container, temp_v_container = self.update_all(temp_pos_container, temp_v_container,
                                                                        remaining_t, temp_a_container)
                 break  # when no collision occurs, break the collision detection loop
@@ -739,11 +708,11 @@ class OlympicsBase(gym.Env):
 
         for agent_idx, agent in enumerate(self.agent_list):
             if self.agent_list[agent_idx].type == 'ball':
-                self.obs_boundary.append(None)
-                obs_list.append(None)
+                # self.obs_boundary.append(None)
+                # obs_list.append(None)
                 continue
 
-            time_s = time.time()
+            # time_s = time.time()
             theta_copy = self.agent_theta[agent_idx][0]
             agent_pos = self.agent_pos
             agent_x, agent_y = agent_pos[agent_idx][0], agent_pos[agent_idx][1]
@@ -756,6 +725,8 @@ class OlympicsBase(gym.Env):
             # obs_weight,obs_height = int(visibility[0]/v_clear[0]),int(visibility[1]/v_clear[1])
             obs_size = int(visibility / v_clear)
             view_back = visibility * self.VIEW_BACK
+
+
             # update_obs_boundary()
             agent_current_boundary = list()
             for b in self.obs_boundary_init[agent_idx]:
@@ -954,7 +925,7 @@ class OlympicsBase(gym.Env):
                 else:
                     raise NotImplementedError
 
-            time_stamp = time.time()
+            # time_stamp = time.time()
             # for component in map_objects:
             if len(list(reversed(
                     map_objects))) == 0 and self.VIEW_ITSELF:  # if no object in the view, plot the agent itself
@@ -1020,11 +991,9 @@ class OlympicsBase(gym.Env):
                                         obs_map[i][j] = COLOR_TO_IDX[component.color]
 
             obs_list.append(obs_map)
-            if self.print_log2:
-                print('agent {} get obs duration {}'.format(agent_idx, time.time() - time_stamp))
         self.obs_list = obs_list
 
-        return obs_list
+        return self.obs_list
 
     def change_inner_state(self):
 

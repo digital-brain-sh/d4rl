@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import math
 import json
+from gym import spaces
 
 
 def point2point(p1, p2):
@@ -20,6 +21,8 @@ def point2point(p1, p2):
 
 class wrestling(OlympicsBase):
     def __init__(self):
+        self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
+        self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
         map = self.create_scenario('wrestling')
         self.current_path = os.path.dirname(__file__)
         self.minimap_mode = map['obs_cfg']['minimap']
