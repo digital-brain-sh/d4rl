@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+
 CURRENT_PATH = str(Path(__file__).resolve().parent)
 sys.path.append(CURRENT_PATH)
 from olympics_engine.core import OlympicsBase
@@ -12,6 +13,7 @@ from pathlib import Path
 import math
 import random
 import json
+from gym import spaces
 
 
 class football(OlympicsBase):
@@ -22,10 +24,8 @@ class football(OlympicsBase):
         self.original_tau = map['env_cfg']['tau']
         self.faster = map['env_cfg']['faster']
         self.original_gamma = map['env_cfg']['gamma']
-
-        # for wall in map['objects']:
-        #     if wall.type == 'wall':
-        #         wall.color='white'
+        self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
+        self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
 
         super(football, self).__init__(map)
 

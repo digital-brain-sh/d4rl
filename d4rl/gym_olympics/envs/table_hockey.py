@@ -12,10 +12,12 @@ from pathlib import Path
 import os
 import math
 import json
-
+from gym import spaces
 
 class table_hockey(OlympicsBase):
     def __init__(self):
+        self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
+        self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
         map = self.create_scenario('table-hockey')
         self.minimap_mode = map['obs_cfg']['minimap']
         self.current_path = os.path.dirname(__file__)
