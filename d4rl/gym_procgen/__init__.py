@@ -1,5 +1,4 @@
 from gym.envs.registration import register
-from .levels import *
 
 REF_MIN_SCORE = {}
 
