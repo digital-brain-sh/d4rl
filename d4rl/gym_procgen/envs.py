@@ -2,7 +2,6 @@ import gym
 from .offline_env import OfflineEnv
 from gym import spaces
 import numpy as np
-import copy
 
 
 class GatoProcgenObsWrapper(gym.ObservationWrapper):
