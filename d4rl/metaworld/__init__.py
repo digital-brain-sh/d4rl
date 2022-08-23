@@ -32,7 +32,7 @@ REF_MAX_SCORE={
     'plate-slide-back-v2': 4777.9,
     'plate-slide-side-v2': 4683.2,
     'plate-slide-v2': 4674.1,
-    'push-back-v2': 0,
+    'push-back-v2': 4237.2,
     'push-v2': 4750.8,
     'push-wall-v2': 4676.8,
     'reach-v2': 4863.4,
