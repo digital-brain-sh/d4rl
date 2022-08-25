@@ -75,7 +75,7 @@ ACTION_DECODER = {
 
 class LevelCache(object):
 
-    def __init__(self, cache_dir='~/dmlab_cache'):
+    def __init__(self, cache_dir='~/gato_dmlab_cache'):
         self._cache_dir = cache_dir
 
     def fetch(self, key, pk3_path):
@@ -145,7 +145,7 @@ class DmLab(gym.Env):
         self._env = deepmind_lab.Lab(
             level=self.level,
             observations=['RGB_INTERLEAVED', 'INSTR'],
-            level_cache=LevelCache('~/dmlab_cache'),
+            level_cache=LevelCache('~/gato_dmlab_cache'),
             config={k: str(v) for k, v in config.items()},
         )
 
