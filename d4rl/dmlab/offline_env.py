@@ -14,6 +14,7 @@ def get_keys(h5file):
     return keys
 
 
+
 class OfflineEnv(gym.Env):
     """
     Base class for offline RL envs.
@@ -27,9 +28,11 @@ class OfflineEnv(gym.Env):
     def __init__(self, game=None, **kwargs):
         super(OfflineEnv, self).__init__()
         self.game = game
+        self.__env_group_name = 'dmlab'
         self.cache_path = kwargs.get('cache_path', None)
         self.dataset_name = kwargs.get('dataset_name')
-        self.__env_group_name = 'procgen'
+        self.dataset_pos = kwargs.get('dataset_pos', None)
+        self.task_group = kwargs.get('task_group', None)
         self.ref_max_score = kwargs.get('ref_max_score', None)
         self.ref_min_score = kwargs.get('ref_min_score', None)
 
@@ -41,8 +44,9 @@ class OfflineEnv(gym.Env):
     @property
     def dataset_filepath(self):
         # /nfs/dgx08/raid/cz/procgen_dataset
-        # return f'/nfs/dgx08/raid/cz/procgen_dataset/{self.dataset_name}/0_0.hdf5'
-        return f'/nfs/dgx08/raid/cz/procgen_dataset/{self.dataset_name}'
+        assert self.dataset_pos is not None
+        # return f'/nfs/{self.dataset_pos}/raid/cz/dmlab_dataset/{self.dataset_name}/0_0.hdf5'
+        return f'/nfs/{self.dataset_pos}/raid/cz/dmlab_dataset/{self.dataset_name}'
 
     def get_dataset(self, h5path=None):
         if h5path is None:
@@ -59,9 +63,6 @@ class OfflineEnv(gym.Env):
                     # data_dict[k].append(dataset_file[k][()])
                     data_dict[k] = dataset_file[k][()]
 
-        data_dict['observations'] = data_dict['observations'].astype(np.float32)
-        # for key in data_dict.keys():
-        #     print(key, data_dict[key].dtype)
         # Run a few quick sanity checks
         N_samples = data_dict['rewards'].shape[0]
         if data_dict['rewards'].shape == (N_samples, 1):

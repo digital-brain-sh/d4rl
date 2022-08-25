@@ -19,6 +19,7 @@ try:
     import d4rl.gym_procgen
     import d4rl.gym_olympics
     import d4rl.overcooked_ai_py
+    import d4rl.dmlab
 except ImportError as e:
     if not SUPPRESS_MESSAGES:
         print(_ERROR_MESSAGE % 'Mujoco-based envs', file=sys.stderr)

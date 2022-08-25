@@ -2,7 +2,7 @@ import gym
 from .offline_env import OfflineEnv
 from gym import spaces
 import numpy as np
-
+from dataclasses import dataclass
 
 class GatoProcgenObsWrapper(gym.ObservationWrapper):
     """Wrap observation of Procgen games for Gato pretraining
@@ -17,8 +17,12 @@ class GatoProcgenObsWrapper(gym.ObservationWrapper):
 
     def observation(self, obs):
         obs = np.transpose(obs, (2, 0, 1))
-        return obs
+        return obs.astype(np.float32)
 
+
+def post_process(obs):
+    obs = np.transpose(obs, (0, 3, 1, 2))
+    return obs.astype(np.float32)
 
 class ProcgenEnv(gym.Env):
     def __init__(self,
@@ -31,7 +35,7 @@ class ProcgenEnv(gym.Env):
                        distribution_mode=self.distribution_mode)
         env = GatoProcgenObsWrapper(env)
         self._env = env
-
+        self.post_process_fn = post_process
         self.observation_space = env.observation_space
         self.action_space = env.action_space
 
@@ -48,10 +52,18 @@ class ProcgenEnv(gym.Env):
         super().seed(seed)
         self._env.seed(seed)
 
+from src.data.input_specs import RLTaskInput
+
+@dataclass
+class ProcgenInput(RLTaskInput):
+    pass
 
 class OfflineProcgenEnv(ProcgenEnv, OfflineEnv):
     def __init__(self, **kwargs):
         game = kwargs['game']
         del kwargs['game']
-        ProcgenEnv.__init__(self, game=game)
+        ProcgenEnv.__init__(self, game=game, **kwargs)
         OfflineEnv.__init__(self, game=game, **kwargs)
+    
+    def build_task_input(self, *args, **kwargs):
+        return ProcgenInput(*args, **kwargs)
