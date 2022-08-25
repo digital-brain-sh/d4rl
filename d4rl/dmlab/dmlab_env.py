@@ -142,13 +142,17 @@ class DmLab(gym.Env):
         config['height'] = 72
         self._num_action_repeats = kwargs.get('num_action_repeats', None)
         self._random_state = np.random.RandomState(seed=kwargs.get('seed', 0))
+        # self._env = deepmind_lab.Lab(
+        #     level=self.level,
+        #     observations=['RGB_INTERLEAVED', 'INSTR'],
+        #     level_cache=LevelCache('~/gato_dmlab_cache'),
+        #     config={k: str(v) for k, v in config.items()},
+        # )
         self._env = deepmind_lab.Lab(
             level=self.level,
             observations=['RGB_INTERLEAVED', 'INSTR'],
-            level_cache=LevelCache('~/gato_dmlab_cache'),
             config={k: str(v) for k, v in config.items()},
         )
-
         self._action_set = DEFAULT_ACTION_SET
         self.action_space = gym.spaces.Discrete(len(self._action_set))
         self.observation_space = gym.spaces.Box(
