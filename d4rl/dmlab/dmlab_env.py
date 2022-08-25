@@ -95,12 +95,15 @@ def post_process(obs):
     obs = np.pad(obs, ((0, 0), (0, 0), (4, 4), (0, 0)), 'constant').astype(np.float32)
     return obs
 
-def c2d_action_mapper(actions):
-    decoded_action = []
-    for item in actions[:]:
-        decoded_action.append(ACTION_DECODER[tuple(item)])
-    decoded_action = np.array(decoded_action, dtype=np.int64)
-    return decoded_action
+def action_mapper(actions):
+    if len(actions.shape) == 1:
+        return np.array(ACTION_DECODER[tuple(actions)])
+    else:
+        decoded_action = []
+        for item in actions[:]:
+            decoded_action.append(ACTION_DECODER[tuple(item)])
+        decoded_action = np.array(decoded_action, dtype=np.int64)
+        return decoded_action
 
 
 class GatoDMLABObsWrapper(gym.ObservationWrapper):
@@ -125,7 +128,7 @@ class DmLab(gym.Env):
 
     def __init__(self, game, **kwargs):
         self.post_process_fn = post_process
-        self.c2d_action_mapper = c2d_action_mapper
+        self.action_mapper = action_mapper
         config = {}
         if kwargs.get('is_test', None):
             config['allowHoldOutLevels'] = 'true'
