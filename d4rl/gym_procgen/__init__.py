@@ -1,8 +1,6 @@
 from gym.envs.registration import register
+from d4rl import infos
 
-REF_MIN_SCORE = {}
-
-REF_MAX_SCORE = {}
 
 DATASET_URLS = {}
 ALL_ENVS = []
@@ -36,23 +34,25 @@ for game in ['bigfish',
              'fruitbot',
              'heist',
              'jumper',
-             'leaper'
+             'leaper',
              'maze',
              'miner',
              'ninja',
              'plunder',
              'starpilot',
              ]:
-    env_name = '%s-expert-v0' % game
+    env_name = game + '_' + game_settings[game][1] + '-expert-v0'
     ALL_ENVS.append(env_name)
     register(
         id=env_name,
         entry_point='d4rl.gym_procgen.envs:OfflineProcgenEnv',
         kwargs={
             'game': game_settings[game][0],
-            'ref_min_score': None,
-            'ref_max_score': None,
+            'dataset_name': game,
+            'ref_min_score': infos.REF_MIN_SCORE.get(env_name, None),
+            'ref_max_score': infos.REF_MAX_SCORE.get(env_name, None),
             'start_level': 0,
+            'cache_path': None,
             'num_levels': 100000,
             'distribution_mode': game_settings[game][1],
         }
