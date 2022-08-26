@@ -45,7 +45,7 @@ class DMControl(core.Env):
         self,
         domain_name,
         task_name,
-        task_kwargs={},
+        task_kwargs=None,
         visualize_reward={},
         from_pixels=False,
         height=84,
@@ -62,9 +62,8 @@ class DMControl(core.Env):
         self._frame_skip = frame_skip
         self._channels_first = channels_first
 
-
         # create task
-        task_kwargs['random'] = 1
+        task_kwargs = {"random": 1}
         self._env = suite.load(
             domain_name=domain_name,
             task_name=task_name,
