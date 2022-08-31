@@ -96,6 +96,13 @@ ALL_GAMES = frozenset([
     'explore_object_rewards_many',
 ])
 
+DMLAB_30_psych = [
+    'psychlab_arbitrary_visuomotor_mapping',
+    'psychlab_continuous_recognition',
+    'psychlab_sequential_comparison',
+    'psychlab_visual_search',
+]
+
 DMLAB_30 = [
     'rooms_collect_good_objects_train',
     'rooms_exploit_deferred_effects_train',

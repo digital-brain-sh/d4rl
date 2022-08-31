@@ -75,20 +75,33 @@ ACTION_DECODER = {
 
 class LevelCache(object):
 
-    def __init__(self, cache_dir='~/gato_dmlab_cache'):
+    def __init__(self, cache_dir='../dmlab_level_cache'):
         self._cache_dir = cache_dir
 
+    def get_path(self, key):
+        key = hashlib.md5(key.encode('utf-8')).hexdigest()
+        dir_, filename = key[:5], key[5:]
+        return os.path.join(self._cache_dir, dir_, filename)
+
     def fetch(self, key, pk3_path):
-        path = os.path.join(self._cache_dir, key)
+        path = self.get_path(key)
         if os.path.isfile(path):
             shutil.copyfile(path, pk3_path)
             return True
         return False
 
     def write(self, key, pk3_path):
-        path = os.path.join(self._cache_dir, key)
+        path = self.get_path(key)
         if not os.path.isfile(path):
-            shutil.copyfile(pk3_path, path)
+            if not os.path.exists(os.path.dirname(path)):
+                os.makedirs(os.path.dirname(path))
+            try:
+                shutil.copyfile(pk3_path, path)
+            except:
+                print('key: ', key)
+                print('pk3_path: ', pk3_path)
+                print('path: ', path)
+                raise
 
 def post_process(obs):
     obs = np.transpose(obs, (0, 3, 1, 2))
@@ -130,7 +143,7 @@ class DmLab(gym.Env):
         self.post_process_fn = post_process
         self.action_mapper = action_mapper
         config = {}
-        if kwargs.get('is_test', None):
+        if 'test' in game:
             config['allowHoldOutLevels'] = 'true'
             # Mixer seed for evalution, see
             # https://github.com/deepmind/lab/blob/master/docs/users/python_api.md
@@ -140,19 +153,20 @@ class DmLab(gym.Env):
         config['logLevel'] = 'WARN'
         config['width'] = 96
         config['height'] = 72
+        config['datasetPath'] = '/raid/brady_konkle_oliva2008'
         self._num_action_repeats = kwargs.get('num_action_repeats', None)
         self._random_state = np.random.RandomState(seed=kwargs.get('seed', 0))
-        # self._env = deepmind_lab.Lab(
-        #     level=self.level,
-        #     observations=['RGB_INTERLEAVED', 'INSTR'],
-        #     level_cache=LevelCache('~/gato_dmlab_cache'),
-        #     config={k: str(v) for k, v in config.items()},
-        # )
         self._env = deepmind_lab.Lab(
             level=self.level,
             observations=['RGB_INTERLEAVED', 'INSTR'],
+            level_cache=LevelCache(),
             config={k: str(v) for k, v in config.items()},
         )
+        # self._env = deepmind_lab.Lab(
+        #     level=self.level,
+        #     observations=['RGB_INTERLEAVED', 'INSTR'],
+        #     config={k: str(v) for k, v in config.items()},
+        # )
         self._action_set = DEFAULT_ACTION_SET
         self.action_space = gym.spaces.Discrete(len(self._action_set))
         self.observation_space = gym.spaces.Box(
