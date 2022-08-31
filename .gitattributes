@@ -1,0 +1,10 @@
+d4rl/metaworld/core/assets_v1/classic_mujoco filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v1/meshes filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v1/multiobject_models filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v1/multi_object_sawyer_xyz filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v1/sawyer_xyz filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v1/textures filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v2/objects filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v2/sawyer_xyz filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v2/scene filter=lfs diff=lfs merge=lfs -text
+d4rl/metaworld/core/assets_v2/textures filter=lfs diff=lfs merge=lfs -text
