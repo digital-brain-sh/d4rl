@@ -1,5 +1,6 @@
 import pygame
-
+import os
+os.environ['SDL_AUDIODRIVER'] = 'dsp'
 
 from olympics_engine.tools.settings import *
 

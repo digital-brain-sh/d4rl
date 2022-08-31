@@ -15,7 +15,8 @@ from gym import spaces
 
 class running(OlympicsBase):
     def __init__(self, map_id=None, seed=100, vis=200, vis_clear=5, agent1_color='light red',
-                 agent2_color='blue'):
+                 agent2_color='blue', max_episode_steps=400):
+        self.max_episode_steps = max_episode_steps
         self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
         self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
         self.maps_path = os.path.join(os.path.dirname(__file__), 'assets/maps.json')
@@ -103,7 +104,7 @@ class running(OlympicsBase):
 
     def is_terminal(self):
 
-        if self.step_cnt >= self.spec.max_episode_steps:
+        if self.step_cnt >= self.max_episode_steps:
             return True
 
         for agent_idx in range(self.agent_num):

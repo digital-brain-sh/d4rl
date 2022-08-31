@@ -3,8 +3,8 @@ import sys
 CURRENT_PATH = str(Path(__file__).resolve().parent)
 sys.path.append(CURRENT_PATH)
 import random
-from olympics_engine.core import OlympicsBase
-from olympics_engine.viewer import Viewer, debug
+from d4rl.gym_olympics.envs.olympics_engine.core import OlympicsBase
+from d4rl.gym_olympics.envs.olympics_engine.viewer import Viewer, debug
 import time
 import pygame
 import json
@@ -14,8 +14,9 @@ from gym import spaces
 
 class rd_running(OlympicsBase):
     def __init__(self, map_id=None, seed=100, vis=200, vis_clear=5, agent1_color='light red',
-                 agent2_color='blue'):
+                 agent2_color='blue', max_episode_steps=400):
         self.seed = seed
+        self.max_episode_steps = max_episode_steps
         self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
         self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
         self.maps_path = os.path.join(os.path.dirname(__file__), 'assets/maps.json')
@@ -116,7 +117,7 @@ class rd_running(OlympicsBase):
 
     def is_terminal(self):
 
-        if self.step_cnt >= self.spec.max_episode_steps:
+        if self.step_cnt >= self.max_episode_steps:
             return True
 
         for agent_idx in range(self.agent_num):
@@ -148,8 +149,12 @@ class rd_running(OlympicsBase):
         # obs_next = 1
         # self.check_overlap()
         self.change_inner_state()
-
-        return obs_next, step_reward, done, {}
+        energy = []
+        for agent_idx in range(len(self.agent_list)):
+            if self.agent_list[agent_idx].type == 'ball':
+                continue
+            energy.append(self.agent_list[agent_idx].energy)
+        return obs_next, step_reward, done, {'energy': energy}
 
     def check_win(self):
         if self.agent_list[0].finished and not (self.agent_list[1].finished):

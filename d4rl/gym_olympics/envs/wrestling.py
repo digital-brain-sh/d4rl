@@ -20,7 +20,8 @@ def point2point(p1, p2):
 
 
 class wrestling(OlympicsBase):
-    def __init__(self):
+    def __init__(self, max_episode_steps=400):
+        self.max_episode_steps = max_episode_steps
         self.observation_space = spaces.Box(0, 20, shape=(2, 40, 40), dtype=float)
         self.action_space = spaces.Box(-100, 200, shape=(2, 2), dtype=float)
         map = self.create_scenario('wrestling')
@@ -61,8 +62,8 @@ class wrestling(OlympicsBase):
         if self.minimap_mode:
             self._build_minimap()
 
-        output_init_obs = self._build_from_raw_obs(init_obs)
-        return output_init_obs
+        # output_init_obs = self._build_from_raw_obs(init_obs)
+        return init_obs
 
     def check_action(self, action_list):
         action = []
@@ -77,7 +78,6 @@ class wrestling(OlympicsBase):
 
     def step(self, actions_list):
         previous_pos = self.agent_pos
-
         actions_list = self.check_action(actions_list)
 
         self.stepPhysics(actions_list, self.step_cnt)
@@ -96,9 +96,14 @@ class wrestling(OlympicsBase):
         if self.minimap_mode:
             self._build_minimap()
 
-        output_obs_next = self._build_from_raw_obs(obs_next)
-
-        return output_obs_next, step_reward, done, {}
+        # output_obs_next = self._build_from_raw_obs(obs_next)
+        
+        energy = []
+        for agent_idx in range(len(self.agent_list)):
+            if self.agent_list[agent_idx].type == 'ball':
+                continue
+            energy.append(self.agent_list[agent_idx].energy)
+        return obs_next, step_reward, done, {'energy': energy}
 
     def _build_from_raw_obs(self, obs):
         if self.minimap_mode:
@@ -166,7 +171,7 @@ class wrestling(OlympicsBase):
 
     def is_terminal(self):
 
-        if self.step_cnt >= self.spec.max_episode_steps:
+        if self.step_cnt >= self.max_episode_steps:
             return True
 
         for agent_idx in range(self.agent_num):

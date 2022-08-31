@@ -17,7 +17,8 @@ from gym import spaces
 
 
 class football(OlympicsBase):
-    def __init__(self):
+    def __init__(self, max_episode_steps=400):
+        self.max_episode_steps = max_episode_steps
         map = self.create_scenario('football')
         self.current_path = os.path.dirname(__file__)
         self.minimap_mode = map['obs_cfg']['minimap']
@@ -67,11 +68,11 @@ class football(OlympicsBase):
         self.ball_pos_init()
 
         init_obs = self.get_obs()
-        if self.minimap_mode:
-            self._build_minimap()
+        # if self.minimap_mode:
+        #     self._build_minimap()
 
-        output_init_obs = self._build_from_raw_obs(init_obs)
-        return output_init_obs
+        # output_init_obs = self._build_from_raw_obs(init_obs)
+        return init_obs
 
     def ball_pos_init(self):
         y_min, y_max = 300, 500
@@ -107,12 +108,16 @@ class football(OlympicsBase):
 
         self.change_inner_state()
 
-        if self.minimap_mode:
-            self._build_minimap()
+        # if self.minimap_mode:
+        #     self._build_minimap()
 
-        output_obs_next = self._build_from_raw_obs(obs_next)
-
-        return output_obs_next, step_reward, done, {}
+        # output_obs_next = self._build_from_raw_obs(obs_next)
+        energy = []
+        for agent_idx in range(len(self.agent_list)):
+            if self.agent_list[agent_idx].type == 'ball':
+                continue
+            energy.append(self.agent_list[agent_idx].energy)
+        return obs_next, step_reward, done, {'energy': energy}
 
     def _build_from_raw_obs(self, obs):
         if self.minimap_mode:
@@ -178,7 +183,7 @@ class football(OlympicsBase):
 
     def is_terminal(self):
 
-        if self.step_cnt >= self.spec.max_episode_steps:
+        if self.step_cnt >= self.max_episode_steps:
             return True
 
         for agent_idx in range(self.agent_num):
