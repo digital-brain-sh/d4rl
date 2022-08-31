@@ -18,7 +18,6 @@ try:
     import d4rl.gym_mujoco
     import d4rl.gym_procgen
     import d4rl.gym_olympics
-    import d4rl.overcooked_ai_py
     import d4rl.dmlab
 except ImportError as e:
     if not SUPPRESS_MESSAGES:
@@ -66,6 +65,13 @@ try:
 except ImportError as e:
     if not SUPPRESS_MESSAGES:
         print(_ERROR_MESSAGE % 'DM Control', file=sys.stderr)
+        print(e, file=sys.stderr)
+
+try:
+    import d4rl.metaworld
+except ImportError as e:
+    if not SUPPRESS_MESSAGES:
+        print(_ERROR_MESSAGE % 'Meta world', file=sys.stderr)
         print(e, file=sys.stderr)
 
 def reverse_normalized_score(env_name, score):
