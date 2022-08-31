@@ -63,18 +63,18 @@ class OlympicsEnv(gym.Env):
         self.observation_space = env.observation_space
         self.action_space = spaces.Box(-1, 1, shape=(2, 2), dtype=np.float)
         self.observation_space = {
-            'observations': spaces.Box(0, 255, shape=(2, 3, 40, 40), dtype=np.uint8),
+            'obs': spaces.Box(0, 255, shape=(2, 3, 40, 40), dtype=np.uint8),
             'energy': spaces.Box(0, 1000, shape=(2, ), dtype=np.float),
             'new_game': spaces.Box(False, True, shape=(1, ), dtype=np.bool),
         }
 
     def step(self, action):
         obs, reward, done, info = self._env.step(self.action_mapper(action))
-        return {'observations': self.obs_wrapper(obs), 'energy': np.array(info['energy']), 'new_game': done}, reward, done, info
+        return {'obs': self.obs_wrapper(obs), 'energy': np.array(info['energy']), 'new_game': done}, reward, done, info
 
     def reset(self, **kwargs):
         obs = self._env.reset(**kwargs)
-        return {'observations': self.obs_wrapper(obs), 'energy': np.array([1000., 1000.]), 'new_game': np.array(True)}
+        return {'obs': self.obs_wrapper(obs), 'energy': np.array([1000., 1000.]), 'new_game': np.array(True)}
 
     def render(self):
         self._env.render()
