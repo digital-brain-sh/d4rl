@@ -41,7 +41,7 @@ for game in ['bigfish',
              'plunder',
              'starpilot',
              ]:
-    env_name = game + '_' + game_settings[game][1] + '-expert-v0'
+    env_name = game + '-expert-v0'
     ALL_ENVS.append(env_name)
     register(
         id=env_name,
