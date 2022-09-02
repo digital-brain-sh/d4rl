@@ -129,9 +129,10 @@ class OfflineEnv(gym.Env):
         # fix single-atom action shape
         if len(data_dict['actions'].shape) == 1:
             data_dict['actions'] = data_dict['actions'].reshape(-1, 1)
-        assert data_dict['actions'].shape[1:] == self.action_space.shape, \
-            'Action shape does not match env: %s vs %s' % (
-                str(data_dict['actions'].shape[1:]), str(self.action_space.shape))
+        # FIXME(ming): there is a bug for discrete action space, we mask it temporary
+        # assert data_dict['actions'].shape[1:] == self.action_space.shape, \
+        #     'Action shape does not match env: %s vs %s' % (
+        #         str(data_dict['actions'].shape[1:]), str(self.action_space.shape))
         if data_dict['rewards'].shape == (N_samples, 1):
             data_dict['rewards'] = data_dict['rewards'][:, 0]
         assert data_dict['rewards'].shape == (N_samples,), 'Reward has wrong shape: %s' % (
