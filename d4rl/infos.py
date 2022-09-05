@@ -104,6 +104,17 @@ DATASET_URLS = {
 
 
 REF_MIN_SCORE = {
+    'asymmetric_advantages_tomato': 0,
+    'asymmetric_advantages': 0,
+    'centre_pots': 0,
+    'cramped_room_o_3orders': 0,
+    'cramped_room': 0,
+    'forced_coordination': 0,
+    'inverse_marshmallow_experiment': 0,
+    'marshmallow_experiment': 0,
+    'soup_coordination': 0,
+    'unident': 0,
+    'you_shall_not_pass': 0,
     "bigfish_hard-expert-v0": 0,
     "bossfight_hard-expert-v0": 0.5,
     "caveflyer_hard-expert-v0": 2.,
@@ -245,6 +256,17 @@ REF_MIN_SCORE = {
 }
 
 REF_MAX_SCORE = {
+    'asymmetric_advantages_tomato': 364.42,
+    'asymmetric_advantages': 99.58,
+    'centre_pots': 64.23,
+    'cramped_room_o_3orders': 87.46,
+    'cramped_room': 92.16,
+    'forced_coordination': 57.22,
+    'inverse_marshmallow_experiment': 217.38,
+    'marshmallow_experiment': 217.78,
+    'soup_coordination': 355.17,
+    'unident': 95.27,
+    'you_shall_not_pass': 216.32,
     "bigfish_hard-expert-v0": 32.17,
     "bossfight_hard-expert-v0": 11.6,
     "caveflyer_hard-expert-v0": 11.8,

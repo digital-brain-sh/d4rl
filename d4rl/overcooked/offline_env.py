@@ -27,7 +27,7 @@ class OfflineEnv(gym.Env):
     def __init__(self, game=None, **kwargs):
         super(OfflineEnv, self).__init__()
         self.game = game
-        self.dataset_name = game + '-expert-v0'
+        self.dataset_name = game
         self.cache_path = kwargs.get('cache_path', None)
         self.ref_max_score = kwargs.get('ref_max_score', None)
         self.ref_min_score = kwargs.get('ref_min_score', None)
