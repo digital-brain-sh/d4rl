@@ -8,14 +8,14 @@ import olympics_env
 import os
 
 
-def make(env_type, seed=None, conf=None):
+def make(env_type, subgame, seed=None, conf=None):
     file_path = os.path.join(os.path.dirname(__file__), 'config.json')
     if not conf:
         with open(file_path) as f:
             conf = json.load(f)[env_type]
     class_literal = conf['class_literal']
     if env_type.split('-')[0] in ["olympics"]:
-        return getattr(olympics_env, class_literal)(conf, seed)
+        return getattr(olympics_env, class_literal)(conf, subgame, seed)
     else:
         return getattr(olympics_env, class_literal)(conf)
 

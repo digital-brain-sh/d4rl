@@ -1,7 +1,7 @@
 import numpy as np
-from olympics_engine.core import OlympicsBase
-from olympics_engine.viewer import Viewer, debug
-from olympics_engine.objects import Agent
+from ..core import OlympicsBase
+from ..viewer import Viewer, debug
+from ..objects import Agent
 import pygame
 import sys
 import math

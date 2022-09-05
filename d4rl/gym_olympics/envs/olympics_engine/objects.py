@@ -22,9 +22,12 @@ import math
 #     'arc': 4,
 #     'ball': 5
 # }
-
-from olympics_engine.tools.func import closest_point
-from olympics_engine.tools.settings import *
+import sys
+from os import path
+father_path = path.dirname(__file__)
+sys.path.append(str(father_path))
+from tools.func import closest_point
+from tools.settings import *
 
 
 

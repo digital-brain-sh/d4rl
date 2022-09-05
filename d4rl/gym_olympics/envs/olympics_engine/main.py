@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-
 base_path = str(Path(__file__).resolve().parent.parent)
 sys.path.append(base_path)
 print(sys.path)
@@ -21,38 +20,37 @@ import json
 
 
 def store(record, name):
-    with open('logs/' + name + '.json', 'w') as f:
-        f.write(json.dumps(record))
 
+    with open('logs/'+name+'.json', 'w') as f:
+        f.write(json.dumps(record))
 
 def load_record(path):
     file = open(path, "rb")
     filejson = json.load(file)
     return filejson
 
-
 RENDER = True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default="all", type=str,
-                        help='running/table-hockey/football/wrestling/billiard/curling/all')
+    parser.add_argument('--map', default="all", type= str,
+                        help = 'running/table-hockey/football/wrestling/billiard/curling/all')
     parser.add_argument("--seed", default=1, type=int)
     args = parser.parse_args()
 
     for i in range(1):
         if args.map != 'all':
             Gamemap = create_scenario(args.map)
-        # game = table_hockey(Gamemap)
+        #game = table_hockey(Gamemap)
         if args.map == 'running':
             game = Running(Gamemap)
             agent_num = 2
         elif args.map == 'running-competition':
 
-            map_id = random.randint(1, 10)
+            map_id = random.randint(1,10)
             # map_id = 3
             Gamemap = create_scenario(args.map)
-            game = Running_competition(meta_map=Gamemap, map_id=map_id)
+            game = Running_competition(meta_map=Gamemap,map_id=map_id)
             agent_num = 2
 
 
@@ -90,9 +88,12 @@ if __name__ == "__main__":
         elif args.map == 'curling-competition':
             game = curling_competition(Gamemap)
             agent_num = 2
+        elif args.map == 'curling-IJACA-competition':
+            game = curling_competition(Gamemap)
+            agent_num = 2
 
         elif args.map == 'all':
-            game = AI_Olympics(random_selection=False, minimap=False)
+            game = AI_Olympics(random_selection = False, minimap=False)
             agent_num = 2
 
         agent = random_agent()
@@ -111,14 +112,15 @@ if __name__ == "__main__":
 
             # print('\n Step ', step)
 
-            # action1 = [100,0]#agent.act(obs)
-            # action2 = [100,0] #rand_agent.act(obs)
+            #action1 = [100,0]#agent.act(obs)
+            #action2 = [100,0] #rand_agent.act(obs)
             if agent_num == 2:
                 action1, action2 = agent.act(obs[0]), rand_agent.act(obs[1])
                 # action1 = [100,1]
 
                 # action1 =[50,1]
                 # action2 = [50,-1]
+
 
                 action = [action1, action2]
             elif agent_num == 1:
@@ -132,7 +134,8 @@ if __name__ == "__main__":
             # action = [[200,action1[1]]]
 
             obs, reward, done, _ = game.step(action)
-            print(f'reward = {reward}')
+            if reward != [0,0]:
+                print(f'reward = {reward}')
             # print('obs = ', obs)
             # plt.imshow(obs[0])
             # plt.show()
@@ -141,10 +144,12 @@ if __name__ == "__main__":
 
             # time.sleep(0.05)
 
-        print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s) / step)
+
+        print("episode duration: ", time.time() - time_epi_s, "step: ", step, (time.time() - time_epi_s)/step)
         # if args.map == 'billiard':
         #     print('reward =', game.total_reward)
         # else:
-        # print('reward = ', reward)
+            # print('reward = ', reward)
         # if R:
         #     store(record,'bug1')
+

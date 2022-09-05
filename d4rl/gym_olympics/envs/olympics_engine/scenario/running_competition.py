@@ -1,26 +1,25 @@
 import random
 
-from olympics_engine.core import OlympicsBase
-from olympics_engine.viewer import Viewer, debug
+from ..core import OlympicsBase
+from ..viewer import Viewer, debug
 import time
 import pygame
 import sys
 import os
 
-from olympics_engine.generator import create_scenario
-from pathlib import Path
 
+from ..generator import create_scenario
+from pathlib import Path
 current_path = str(Path(__file__).resolve().parent)
 maps_path = os.path.join(current_path, "running_competition_maps/maps.json")
 
 
+
 class Running_competition(OlympicsBase):
-    def __init__(self, meta_map, map_id=None, seed=None, vis=None, vis_clear=None, agent1_color='purple',
-                 agent2_color='green'):
+    def __init__(self, meta_map, map_id = None, seed = None, vis = None, vis_clear=None, agent1_color = 'purple', agent2_color = 'green'):
         # self.minimap_mode = map['obs_cfg'].get('minimap', False)
 
-        Gamemap, map_index = Running_competition.choose_a_map(
-            idx=map_id)  # fixme(yan): penatration in some maps, need to check engine, vis
+        Gamemap, map_index = Running_competition.choose_a_map(idx = map_id)        #fixme(yan): penatration in some maps, need to check engine, vis
         if vis is not None:
             for a in Gamemap['agents']:
                 a.visibility = vis
@@ -31,6 +30,7 @@ class Running_competition(OlympicsBase):
                 elif a.color == 'green':
                     a.color = agent2_color
                     a.original_color = agent2_color
+
 
         self.meta_map = meta_map
         self.map_index = map_index
@@ -48,8 +48,8 @@ class Running_competition(OlympicsBase):
         self.speed_cap = meta_map['env_cfg']['speed_cap']
         self.faster = meta_map['env_cfg']['faster']
 
-        self.tau = self.original_tau * self.faster
-        self.gamma = 1 - (1 - self.original_gamma) * self.faster
+        self.tau = self.original_tau*self.faster
+        self.gamma = 1-(1-self.original_gamma)*self.faster
 
         # self.gamma = 1  # v衰减系数
         # self.restitution = 0.5
@@ -63,24 +63,24 @@ class Running_competition(OlympicsBase):
         # self.show_traj = True
 
     @staticmethod
-    def reset_map(meta_map, map_id, vis=None, vis_clear=None, agent1_color='purple', agent2_color='green'):
-        return Running_competition(meta_map, map_id, vis=vis, vis_clear=vis_clear, agent1_color=agent1_color,
-                                   agent2_color=agent2_color)
+    def reset_map(meta_map, map_id, vis=None, vis_clear=None, agent1_color = 'purple', agent2_color = 'green'):
+        return Running_competition(meta_map, map_id, vis=vis, vis_clear = vis_clear, agent1_color=agent1_color, agent2_color=agent2_color)
 
     @staticmethod
     def choose_a_map(idx=None):
         if idx is None:
-            idx = random.randint(1, 4)
-        MapStats = create_scenario("map" + str(idx), file_path=maps_path)
+            idx = random.randint(1,4)
+        MapStats = create_scenario("map"+str(idx), file_path=  maps_path)
         return MapStats, idx
 
     def check_overlap(self):
-        # todo
+        #todo
         pass
 
     def get_reward(self):
 
         agent_reward = [0. for _ in range(self.agent_num)]
+
 
         for agent_idx in range(self.agent_num):
             if self.agent_list[agent_idx].finished:
@@ -99,6 +99,8 @@ class Running_competition(OlympicsBase):
 
         return False
 
+
+
     def step(self, actions_list):
 
         previous_pos = self.agent_pos
@@ -106,7 +108,7 @@ class Running_competition(OlympicsBase):
         time1 = time.time()
         self.stepPhysics(actions_list, self.step_cnt)
         time2 = time.time()
-        # print('stepPhysics time = ', time2 - time1)
+        #print('stepPhysics time = ', time2 - time1)
         self.speed_limit()
 
         self.cross_detect(previous_pos, self.agent_pos)
@@ -118,9 +120,9 @@ class Running_competition(OlympicsBase):
         time3 = time.time()
         obs_next = self.get_obs()
         time4 = time.time()
-        # print('render time = ', time4-time3)
+        #print('render time = ', time4-time3)
         # obs_next = 1
-        # self.check_overlap()
+        #self.check_overlap()
         self.change_inner_state()
 
         return obs_next, step_reward, done, ''
@@ -128,16 +130,18 @@ class Running_competition(OlympicsBase):
     def check_win(self):
         if self.agent_list[0].finished and not (self.agent_list[1].finished):
             return '0'
-        elif not (self.agent_list[0].finished) and self.agent_list[1].finished:
+        elif not(self.agent_list[0].finished) and self.agent_list[1].finished:
             return '1'
         else:
             return '-1'
 
+
     def render(self, info=None):
+
 
         if not self.display_mode:
             self.viewer.set_mode()
-            self.display_mode = True
+            self.display_mode=True
 
         self.viewer.draw_background()
         for w in self.map['objects']:
@@ -150,7 +154,7 @@ class Running_competition(OlympicsBase):
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap=100)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
 
         if self.show_traj:
             self.get_trajectory()
@@ -158,15 +162,19 @@ class Running_competition(OlympicsBase):
 
         self.viewer.draw_direction(self.agent_pos, self.agent_accel)
 
+
         # debug('mouse pos = '+ str(pygame.mouse.get_pos()))
         debug('Step: ' + str(self.step_cnt), x=30)
         if info is not None:
             debug(info, x=100)
 
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
+
 
 
 if __name__ == '__main__':

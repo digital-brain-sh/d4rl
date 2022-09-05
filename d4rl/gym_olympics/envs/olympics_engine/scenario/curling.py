@@ -1,6 +1,6 @@
-from olympics_engine.core import OlympicsBase
-from olympics_engine.viewer import Viewer, debug
-from olympics_engine.objects import Ball, Agent
+from ..core import OlympicsBase
+from ..viewer import Viewer, debug
+from ..objects import Ball, Agent
 from pathlib import Path
 CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
 
@@ -55,7 +55,7 @@ grid_node_width = 2     #for view drawing
 grid_node_height = 2
 
 
-from olympics_engine.tools.func import closest_point, distance_to_line
+from ..tools.func import closest_point, distance_to_line
 
 
 

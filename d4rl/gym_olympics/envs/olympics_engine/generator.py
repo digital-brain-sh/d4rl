@@ -4,8 +4,8 @@ import os
 from os import path
 father_path = path.dirname(__file__)
 sys.path.append(str(father_path))
-
-module = __import__("objects")
+import objects as module
+# module = __import__("objects")
 
 def create_scenario(scenario_name, file_path = None):
     if file_path is None:

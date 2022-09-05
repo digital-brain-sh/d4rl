@@ -1,5 +1,5 @@
-from olympics_engine.core import OlympicsBase
-from olympics_engine.viewer import Viewer, debug
+from ..core import OlympicsBase
+from ..viewer import Viewer, debug
 import time
 import pygame
 import sys

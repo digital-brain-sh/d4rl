@@ -1,9 +1,9 @@
 import pygame
+
+
+from .tools.settings import *
 import os
 os.environ['SDL_AUDIODRIVER'] = 'dsp'
-
-from olympics_engine.tools.settings import *
-
 grid_node_width = 2     #for view drawing
 grid_node_height = 2
 
