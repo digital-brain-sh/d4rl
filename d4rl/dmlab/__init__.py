@@ -5,7 +5,14 @@ from d4rl import infos
 DATASET_URLS = {}
 ALL_ENVS = []
 
-ALL_LEVELS = DMLAB_30 + psychlab + psychlab_memory + psychlab_visuospatial + fast_mapping + others
+ALL_LEVELS = DMLAB_30 + psychlab + psychlab_memory + psychlab_visuospatial + fast_mapping + others + gen_explore_goal_locations + \
+    gen_explore_object_locations + gen_explore_object_rewards + \
+    gen_explore_obstructed_goals + gen_lasertag
+
+GENERATED_LEVELS = gen_explore_goal_locations + \
+    gen_explore_object_locations + gen_explore_object_rewards + \
+    gen_explore_obstructed_goals + gen_lasertag
+
 
 dataset_pos = {
     'dgx05': ['explore_goal_locations_large',

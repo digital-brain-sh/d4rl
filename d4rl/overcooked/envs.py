@@ -4,7 +4,6 @@ from gym import spaces
 import numpy as np
 from dataclasses import dataclass
 from overcooked_ai_py.mdp.actions import Action
-from overcooked_ai_py.agents.benchmarking import AgentEvaluator
 from overcooked_ai_py.mdp.overcooked_mdp import OvercookedGridworld
 from overcooked_ai_py.mdp.overcooked_env import OvercookedEnv
 
