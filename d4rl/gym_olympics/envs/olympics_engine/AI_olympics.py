@@ -72,7 +72,7 @@ class AI_Olympics:
         self.current_game_count = 0
         selected_game_idx = self.selected_game_idx_pool[self.current_game_count]
 
-        print(f'Playing {self.game_pool[selected_game_idx]["name"]}')
+        # print(f'Playing {self.game_pool[selected_game_idx]["name"]}')
         # if self.game_pool[selected_game_idx]['name'] == 'running-competition':
         #     self.game_pool[selected_game_idx]['game'] = \
         #         Running_competition.reset_map(meta_map= self.running_game.meta_map,map_id=None, vis=200, vis_clear=5,
@@ -126,7 +126,7 @@ class AI_Olympics:
                 self.current_game_idx = self.selected_game_idx_pool[self.current_game_count]
 
                 self.current_game = self.game_pool[self.current_game_idx]['game']
-                print(f'Playing {self.game_pool[self.current_game_idx]["name"]}')
+                # print(f'Playing {self.game_pool[self.current_game_idx]["name"]}')
                 obs = self.current_game.reset()
                 if self.current_game.game_name == 'running-competition':
                     obs = [{'agent_obs': obs[i], 'id': f'team_{i}'} for i in [0, 1]]
@@ -139,16 +139,16 @@ class AI_Olympics:
                         j['energy'] = self.current_game.agent_list[i].energy
 
         if self.done:
-            print('game score = ', self.game_score)
+            # print('game score = ', self.game_score)
             if self.game_score[0] > self.game_score[1]:
                 self.final_reward = [100, 0]
-                print('Results: team 0 win!')
+                # print('Results: team 0 win!')
             elif self.game_score[1] > self.game_score[0]:
                 self.final_reward = [0, 100]
-                print('Results: team 1 win!')
+                # print('Results: team 1 win!')
             else:
                 self.final_reward = [0, 0]
-                print('Results: Draw!')
+                # print('Results: Draw!')
 
             return obs, self.final_reward, self.done, ''
         else:
