@@ -6,16 +6,18 @@ from gym import spaces
 from .envs.olympics_env.olympics_integrated import OlympicsIntegrated
 import os
 import json
+from dataclasses import dataclass
+
 
 class OlympicsEnv(gym.Env):
     def __init__(self,
-                game,
-                **kwargs) -> None:
+                 game, map_idx=None, max_episode_steps=400,
+                 **kwargs) -> None:
         super().__init__()
         config_path = os.path.join(os.path.dirname(__file__), 'envs', 'olympics_env', 'config.json')
         with open(config_path) as f:
             conf = json.load(f)['olympics-integrated']
-        env = OlympicsIntegrated(conf, game)
+        env = OlympicsIntegrated(conf, game, map_idx=map_idx, max_episode_steps=max_episode_steps, **kwargs)
         self._env = env
         # self.post_process_fn = post_process
         self.action_space = spaces.Box(-1, 1, shape=(2, 2), dtype=np.float32)
@@ -35,8 +37,8 @@ class OlympicsEnv(gym.Env):
         obs = self._env.reset(**kwargs)
         return self.obs_wrapper(obs)
 
-    def render(self):
-        self._env.render()
+    def render(self, **kwargs):
+        self._env.env_core.render()
 
     def seed(self, seed=None):
         self._env.seed(seed)
@@ -59,6 +61,12 @@ class OlympicsEnv(gym.Env):
         action = [[[action[0][0]], [action[0][1]]], [[action[1][0]], [action[1][1]]]]
         # print(action)
         return action
+    
+    def inverse_act_mapper(self, action):
+        action[:, 0] = (action[:, 0] - 50) / 150
+        action[:, 1] = action[:, 1] / 30
+        # print(action)
+        return action
 
 
 from src.data.input_specs import RLTaskInput
@@ -69,10 +77,10 @@ class OlympicsInput(RLTaskInput):
 
 
 class OfflineOlympicsEnv(OlympicsEnv, OfflineEnv):
-    def __init__(self, **kwargs):
+    def __init__(self, map_idx=None, max_episode_steps=400, **kwargs):
         game = kwargs['game']
         del kwargs['game']
-        OlympicsEnv.__init__(self, game=game, **kwargs)
+        OlympicsEnv.__init__(self, game=game, map_idx=map_idx, max_episode_steps=max_episode_steps, **kwargs)
         OfflineEnv.__init__(self, game=game, **kwargs)
 
     def build_task_input(self, *args, **kwargs):

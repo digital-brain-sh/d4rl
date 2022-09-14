@@ -1,15 +1,18 @@
 from gym.envs.registration import register
 from .games import *
 from d4rl import infos
+import os
 
 DATASET_URLS = {}
 ALL_ENVS = []
 
-ALL_LEVELS = DMLAB_30 + psychlab + psychlab_memory + psychlab_visuospatial + fast_mapping + others + gen_explore_goal_locations + \
+ALL_LEVELS = DMLAB_30 + psychlab + psychlab_memory + psychlab_visuospatial + fast_mapping + others
+
+GENERATED_LEVELS = gen_explore_goal_locations + \
     gen_explore_object_locations + gen_explore_object_rewards + \
     gen_explore_obstructed_goals + gen_lasertag
 
-GENERATED_LEVELS = gen_explore_goal_locations + \
+NEW_GEN_LEVELS = gen_explore_goal_locations + \
     gen_explore_object_locations + gen_explore_object_rewards + \
     gen_explore_obstructed_goals + gen_lasertag
 
@@ -49,7 +52,68 @@ for game in ALL_LEVELS:
     cur_game = None
     for taskset in tasksets.items():
         if game in taskset[1]:
-            cur_game = tasksets_path[taskset[0]] + game
+            cur_game = os.path.join(tasksets_path[taskset[0]], game)
+    position = ''
+    for pos in dataset_pos.keys():
+        if game in dataset_pos[pos]:
+            position = pos
+            break
+    env_name = '%s-expert-v0' % game
+    ALL_ENVS.append(env_name)
+    register(
+        id=env_name,
+        entry_point='d4rl.dmlab.envs:OfflineDMLABEnv',
+        kwargs={
+            'game': cur_game,
+            'dataset_name': game,
+            'extra_input': False if game not in languages else True,
+            'ref_min_score': infos.REF_MIN_SCORE.get(env_name, None),
+            'ref_max_score': infos.REF_MAX_SCORE.get(env_name, None),
+            'is_test': False,
+            'task_group': 'dmlab',
+            'dataset_pos': position,
+            'cache_path': None,
+            'seed': 0,
+            'num_action_repeats': 4,
+        }
+    )
+
+for game in NEW_GEN_LEVELS:
+    cur_game = None
+    for taskset in tasksets.items():
+        if game in taskset[1]:
+            cur_game = os.path.join('new_gen_levels', tasksets_path[taskset[0]] + '_new', game)
+    game = 'new_' + game
+    position = ''
+    for pos in dataset_pos.keys():
+        if game in dataset_pos[pos]:
+            position = pos
+            break
+    env_name = '%s-expert-v0' % game
+    ALL_ENVS.append(env_name)
+    register(
+        id=env_name,
+        entry_point='d4rl.dmlab.envs:OfflineDMLABEnv',
+        kwargs={
+            'game': cur_game,
+            'dataset_name': game,
+            'extra_input': False if game not in languages else True,
+            'ref_min_score': infos.REF_MIN_SCORE.get(env_name, None),
+            'ref_max_score': infos.REF_MAX_SCORE.get(env_name, None),
+            'is_test': False,
+            'task_group': 'dmlab',
+            'dataset_pos': position,
+            'cache_path': None,
+            'seed': 0,
+            'num_action_repeats': 4,
+        }
+    )
+
+for game in GENERATED_LEVELS:
+    cur_game = None
+    for taskset in tasksets.items():
+        if game in taskset[1]:
+            cur_game = os.path.join('old_gen_levels', tasksets_path[taskset[0]], game)
     position = ''
     for pos in dataset_pos.keys():
         if game in dataset_pos[pos]:

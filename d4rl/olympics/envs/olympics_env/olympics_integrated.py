@@ -10,21 +10,21 @@ sys.path.append(CURRENT_PATH)
 
 from ..olympics_engine.AI_olympics import AI_Olympics
 
-from ..utils.box import Box
+from ..olympics_tools import Box
 from ..olympics_env.simulators.game import Game
 
 import numpy as np
 
 
 class OlympicsIntegrated(Game):
-    def __init__(self, conf, subgame, seed=None):
+    def __init__(self, conf, subgame, map_idx=None, max_episode_steps=400, seed=None, **kwargs):
         super(OlympicsIntegrated, self).__init__(conf['n_player'], conf['is_obs_continuous'], conf['is_act_continuous'],
                                                  conf['game_name'], conf['agent_nums'], conf['obs_type'])
 
         self.seed = seed
         self.set_seed()
 
-        self.env_core = AI_Olympics(subgame=subgame, minimap=False)
+        self.env_core = AI_Olympics(subgame=subgame, map_idx=map_idx, max_episode_steps=max_episode_steps, minimap=False, **kwargs)
         self.max_step = int(conf['max_step'])
         self.joint_action_space = self.set_action_space()
         self.action_dim = self.joint_action_space

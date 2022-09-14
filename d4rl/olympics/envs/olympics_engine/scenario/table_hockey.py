@@ -30,7 +30,7 @@ class table_hockey(OlympicsBase):
 
         self.print_log = False
 
-        self.draw_obs = True
+        self.draw_obs = False
         self.show_traj = False
         self.beauty_render = False
 

@@ -2,45 +2,40 @@ from ..core import OlympicsBase
 from ..viewer import Viewer, debug
 import pygame
 import sys
-import time
+import random
 import os
 from pathlib import Path
 CURRENT_PATH = str(Path(__file__).resolve().parent.parent)
 import math
-import random
 
-class football(OlympicsBase):
-    def __init__(self, map, minimap=False):
+
+def point2point(p1, p2):
+    return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+
+class wrestling(OlympicsBase):
+    def __init__(self, map):
         self.minimap_mode = map['obs_cfg']['minimap']
-        self.original_tau = map['env_cfg']['tau']
-        self.faster = map['env_cfg']['faster']
-        self.original_gamma = map['env_cfg']['gamma']
 
-        # for wall in map['objects']:
-        #     if wall.type == 'wall':
-        #         wall.color='white'
+        super(wrestling, self).__init__(map)
 
-        super(football, self).__init__(map)
-
-        self.game_name = 'football'
-
+        self.game_name = 'wrestling'
         self.agent1_color = self.agent_list[0].color
         self.agent2_color = self.agent_list[1].color
+        self.bound_color = 'green'
 
+
+        self.gamma = map['env_cfg']['gamma']
         self.wall_restitution = map['env_cfg']['wall_restitution']
         self.circle_restitution = map['env_cfg']['circle_restitution']
-        self.tau = self.original_tau * self.faster
-        self.gamma = 1-(1-self.original_gamma)*self.faster
-
+        self.tau = map['env_cfg']['tau']
         self.speed_cap = map['env_cfg']['speed_cap']
         self.max_step = map['env_cfg']['max_step']
-        self.energy_recover_rate = map['env_cfg']["energy_recover_rate"]
-
         self.print_log = False
 
-        self.draw_obs = True
+        self.draw_obs = False
         self.show_traj = False
         self.beauty_render = False
+
 
     def check_overlap(self):
         pass
@@ -54,12 +49,7 @@ class football(OlympicsBase):
 
         self.viewer = Viewer(self.view_setting)
         self.display_mode=False
-        pygame.display.set_caption("Olympics-Football")
-        self.viewer.set_screen(size = (600, 400), color = (143,203,174), pos = (50,200))
-        self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (5, 350))
-        self.viewer.set_screen(size = (45, 100), color = (100,142,122), pos = (650, 350))
 
-        self.ball_pos_init()
 
         init_obs = self.get_obs()
         if self.minimap_mode:
@@ -68,12 +58,6 @@ class football(OlympicsBase):
         output_init_obs = self._build_from_raw_obs(init_obs)
         return output_init_obs
 
-    def ball_pos_init(self):
-        y_min, y_max = 300, 500
-        for index, item in enumerate(self.agent_list):
-            if item.type == 'ball':
-                random_y = random.uniform(y_min, y_max)
-                self.agent_init_pos[index][1] = random_y
 
     def check_action(self, action_list):
         action = []
@@ -87,20 +71,21 @@ class football(OlympicsBase):
         return action
 
     def step(self, actions_list):
+        previous_pos = self.agent_pos
 
         actions_list = self.check_action(actions_list)
 
-        self.stepPhysics(actions_list)
+        self.stepPhysics(actions_list, self.step_cnt)
+
         self.speed_limit()
+
+        self.cross_detect(previous_pos, self.agent_pos)
+
         self.step_cnt += 1
-        self.cross_detect()
-
         step_reward = self.get_reward()
-        obs_next = self.get_obs()              #need to add agent or ball check in get_obs
-
+        obs_next = self.get_obs()
+        # obs_next = 1
         done = self.is_terminal()
-        self.done = done
-
         self.change_inner_state()
 
         if self.minimap_mode:
@@ -135,48 +120,49 @@ class football(OlympicsBase):
 
 
 
+    def cross_detect(self, previous_pos, new_pos):
 
-    def cross_detect(self):
-        """
-        check whether the agent has reach the cross(final) line
-        :return:
-        """
+        #case one: arc intersect with the agent
+        #check radian first
+        finals = []
+        for object_idx in range(len(self.map['objects'])):
+            object = self.map['objects'][object_idx]
+            if object.can_pass() and object.color == self.bound_color:
+                #arc_pos = object.init_pos
+                finals.append(object)
+
         for agent_idx in range(self.agent_num):
-
             agent = self.agent_list[agent_idx]
+            agent_pre_pos, agent_new_pos = previous_pos[agent_idx], new_pos[agent_idx]
 
-            if agent.type == 'ball':
-                for object_idx in range(len(self.map['objects'])):
-                    object = self.map['objects'][object_idx]
+            for final in finals:
+                center = (final.init_pos[0] + 0.5*final.init_pos[2], final.init_pos[1]+0.5*final.init_pos[3])
+                arc_r = final.init_pos[2]/2
 
-                    if not object.can_pass():
-                        continue
-                    else:
-                        if object.color == 'red' and object.check_cross(self.agent_pos[agent_idx], agent.r):
-                            agent.color = 'red'
-                            agent.finished = True  # when agent has crossed the finished line
-                            agent.alive = False
+                if final.check_radian(agent_new_pos, [0,0], 0):
+                    l = point2point(agent_new_pos, center)
+                    if abs(l - arc_r) <= agent.r:
+                        # agent.color = 'blue'
+                        agent.finished = True
+                        agent.alive = False
+
+
+
+        #case two: the agent cross the arc, inner  to outer or outer to inner
 
 
     def get_reward(self):
 
-        ball_end_pos = None
-
-        for agent_idx in range(self.agent_num):
-            agent = self.agent_list[agent_idx]
-
-            if agent.type == 'ball' and agent.finished:
-                ball_end_pos = self.agent_pos[agent_idx]
-
-        if ball_end_pos is not None and ball_end_pos[0] < 400:
+        agent1_finished = self.agent_list[0].finished
+        agent2_finished = self.agent_list[1].finished
+        if agent1_finished and agent2_finished:
+            return [0., 0]
+        elif agent1_finished and not agent2_finished:
             return [0., 1]
-
-        elif ball_end_pos is not None and ball_end_pos[0] > 400:
+        elif not agent1_finished and agent2_finished:
             return [1., 0]
         else:
-            return [0. ,0.]
-
-
+            return [0,0]
 
     def is_terminal(self):
 
@@ -184,30 +170,18 @@ class football(OlympicsBase):
             return True
 
         for agent_idx in range(self.agent_num):
-            agent = self.agent_list[agent_idx]
-            if agent.type == 'ball' and agent.finished:
+            if self.agent_list[agent_idx].finished:
                 return True
 
         return False
 
     def check_win(self):
-        if self.done:
-            self.ball_end_pos = None
-            for agent_idx in range(self.agent_num):
-                agent = self.agent_list[agent_idx]
-                if agent.type == 'ball' and agent.finished:
-                    self.ball_end_pos = self.agent_pos[agent_idx]
-
-        if self.ball_end_pos is None:
-            return '-1'
+        if self.agent_list[0].finished and not (self.agent_list[1].finished):
+            return '1'
+        elif not (self.agent_list[0].finished) and self.agent_list[1].finished:
+            return '0'
         else:
-            if self.ball_end_pos[0] < 400:
-                return '1'
-            elif self.ball_end_pos[0] > 400:
-                return '0'
-            else:
-                raise NotImplementedError
-
+            return '-1'
 
     def render(self, info=None):
 
@@ -217,18 +191,14 @@ class football(OlympicsBase):
 
             if not self.display_mode:
                 self.viewer.set_mode()
-                self.display_mode=True
+                self.display_mode = True
+
                 if self.beauty_render:
                     self._load_image()
-
-
-
-            self.viewer.draw_background()
+            self.viewer.draw_background(color_code=(108, 180, 143) if self.beauty_render else (255, 255, 255))
             if self.beauty_render:
                 self._draw_playground()
                 self._draw_energy(self.agent_list)
-                for i in self.viewer.screen_list:
-                    self.viewer.background.blit(i['screen'], i['pos'])
 
             for w in self.map['objects']:
                 self.viewer.draw_map(w)
@@ -237,20 +207,22 @@ class football(OlympicsBase):
                 self._draw_image(self.agent_pos, self.agent_list, self.agent_theta, self.obs_boundary)
             else:
                 self.viewer.draw_ball(self.agent_pos, self.agent_list)
-
-            if self.draw_obs:
-                self.viewer.draw_obs(self.obs_boundary, self.agent_list)
+                if self.draw_obs:
+                    self.viewer.draw_obs(self.obs_boundary, self.agent_list)
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=450, upmost_y=10, gap = 130, energy_width=0 if self.beauty_render else 5)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=470, upmost_y=10, gap=130,
+                                      energy_width=0 if self.beauty_render else 5)
 
         if self.show_traj:
             self.get_trajectory()
             self.viewer.draw_trajectory(self.agent_record, self.agent_list)
 
         self.viewer.draw_direction(self.agent_pos, self.agent_accel)
+        # self.viewer.draw_map()
 
+        # debug('mouse pos = '+ str(pygame.mouse.get_pos()))
         debug('Step: ' + str(self.step_cnt), x=30)
         if info is not None:
             debug(info, x=100)
@@ -260,21 +232,21 @@ class football(OlympicsBase):
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
-        #self.viewer.background.fill((255, 255, 255))
+        # self.viewer.background.fill((255, 255, 255))
 
     def _load_image(self):
-        self.playground_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/playground.png")).convert_alpha()
-        self.playground_image = pygame.transform.scale(self.playground_image, size = (720, 480))
+        self.playground_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/wrestling/playground.png"))
+        r = 440
+        self.playground_image = pygame.transform.scale(self.playground_image, size = (r*0.96899, r))
 
-        self.player_1_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent1-V2.png")).convert_alpha()
-        self.player_2_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/agent2-V2.png")).convert_alpha()
-        self.ball_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/football.png")).convert_alpha()
-        self.player_1_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight1.png")).convert_alpha()
-        self.player_2_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/football/sight2.png")).convert_alpha()
+        self.player_1_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/wrestling/player1.png"))
+        self.player_2_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/wrestling/player2.png"))
+
+        self.player_1_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/wrestling/sight1.png")).convert_alpha()
+        self.player_2_view_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/wrestling/sight2.png")).convert_alpha()
 
         self.wood_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/board.png")).convert_alpha()
-        self.wood_image1 = pygame.transform.scale(self.wood_image, size = (300,170))
-        self.wood_image2 = pygame.transform.scale(self.wood_image, size = (70,30))
+        self.wood_image1 = pygame.transform.scale(self.wood_image, size = (260,170))
 
         self.red_energy_image = pygame.image.load(os.path.join(CURRENT_PATH, "assets/energy-red.png")).convert_alpha()
         red_energy_size = self.red_energy_image.get_size()
@@ -292,28 +264,12 @@ class football(OlympicsBase):
         blue_energy_bar_size = self.blue_energy_bar_image.get_size()
         self.blue_energy_bar_image = pygame.transform.scale(self.blue_energy_bar_image, size=(85, 10))
 
-
-
     def _draw_playground(self):
-        # playground_image_size = self.playground_image.get_size()
-        # image = pygame.transform.scale(self.playground_image, size = (720, 480))
-        loc = (0,170)
+        loc = (91,133)
         self.viewer.background.blit(self.playground_image, loc)
-
-        # wood_image = pygame.transform.scale(self.wood_image, size = (300,170))
-        self.viewer.background.blit(self.wood_image1, (400, 0))
-        # wood_image2 = pygame.transform.scale(self.wood_image, size = (70,30))
-        # self.viewer.background.blit(self.wood_image2, (20,0))
-
-        # red_energy_size = self.red_energy_image.get_size()
-        # red_energy_image = pygame.transform.scale(self.red_energy_image, size = (110,red_energy_size[1]*110/red_energy_size[0]))
-        #
-        # blue_energy_size = self.blue_energy_image.get_size()
-        # blue_energy_image = pygame.transform.scale(self.blue_energy_image, size = (110, blue_energy_size[1]*110/blue_energy_size[0]))
-
-
-        self.viewer.background.blit(self.red_energy_image, (425, 130))
-        self.viewer.background.blit(self.blue_energy_image, (555, 130))
+        self.viewer.background.blit(self.wood_image1, (440, 0))
+        self.viewer.background.blit(self.red_energy_image, (450, 130))
+        self.viewer.background.blit(self.blue_energy_image, (580, 130))
 
 
     def _draw_energy(self, agent_list):
@@ -323,8 +279,7 @@ class football(OlympicsBase):
         # red_energy_bar = pygame.transform.scale(self.red_energy_bar_image, size=(85, 10))
         # blue_energy_bar = pygame.transform.scale(self.blue_energy_bar_image, size=(85, 10))
 
-
-        start_pos = [448, 136]
+        start_pos = [473, 136]
         # end_pos = [450+100*remain_energy, 130]
         image = self.red_energy_bar_image
         for agent_idx in range(len(agent_list)):
@@ -340,7 +295,6 @@ class football(OlympicsBase):
             image = self.blue_energy_bar_image
 
 
-
     def _draw_image(self, pos_list, agent_list, direction_list, view_list):
         assert len(pos_list) == len(agent_list)
         for i in range(len(pos_list)):
@@ -352,7 +306,6 @@ class football(OlympicsBase):
             theta = direction_list[i][0]
             vis = agent_list[i].visibility
             view_back = self.VIEW_BACK*vis if vis is not None else 0
-
             if agent.type == 'agent':
                 if color == self.agent1_color:
                     player_image_size = self.player_1_image.get_size()
@@ -368,7 +321,7 @@ class football(OlympicsBase):
 
                     #view player image
                     player_image_view = pygame.transform.rotate(image, 90)
-                    self.viewer.background.blit(player_image_view, (470, 90))
+                    self.viewer.background.blit(player_image_view, (480, 90))
 
 
                 elif color == self.agent2_color:
@@ -384,12 +337,9 @@ class football(OlympicsBase):
                     self.viewer.background.blit(rotate_view_image, new_view_rect)
 
                     player_image_view = pygame.transform.rotate(image, 90)
-                    self.viewer.background.blit(player_image_view, (600, 90))
+                    self.viewer.background.blit(player_image_view, (610, 90))
 
                     # self.viewer.background.blit(image_green, loc)
-            elif agent.type == 'ball':
-                image = pygame.transform.scale(self.ball_image, size = (r*2, r*2))
-                loc = (t[0] - r, t[1] - r)
 
             rotate_image = pygame.transform.rotate(image, -theta)
 
@@ -397,4 +347,5 @@ class football(OlympicsBase):
 
 
             self.viewer.background.blit(rotate_image, new_rect)
+
 

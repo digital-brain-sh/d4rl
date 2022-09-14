@@ -17,7 +17,7 @@ try:
     import d4rl.gym_minigrid
     import d4rl.gym_mujoco
     import d4rl.gym_procgen
-    import d4rl.gym_olympics
+    import d4rl.olympics
     import d4rl.overcooked
     import d4rl.dmlab
 except ImportError as e:

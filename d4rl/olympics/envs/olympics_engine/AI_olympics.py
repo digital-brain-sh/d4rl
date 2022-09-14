@@ -10,18 +10,22 @@ import random
 
 
 class AI_Olympics:
-    def __init__(self, subgame, minimap):
+    def __init__(self, subgame, minimap, map_idx=None, max_episode_steps=400, **kwargs):
 
         self.random_selection = False if subgame != 'all' else True
         self.minimap_mode = minimap
 
-        self.max_step = 400
+        self.max_step = max_episode_steps
         self.vis = 200
         self.vis_clear = 5
         running_Gamemap = create_scenario("running-competition")
-        self.running_game = Running_competition(running_Gamemap, vis=200, vis_clear=5, agent1_color='light red',
-                                                agent2_color='blue')
-        if subgame == 'all':
+        if 'rd_running' in subgame:
+            self.running_game = Running_competition(running_Gamemap, rd_running=True, vis=200, vis_clear=5, agent1_color='light red',
+                                                    agent2_color='blue')
+        else:
+            self.running_game = Running_competition(running_Gamemap, rd_running=False, vis=200, vis_clear=5, agent1_color='light red',
+                                                    agent2_color='blue', map_idx=map_idx)
+        if 'integrated' in subgame:
             self.tablehockey_game = table_hockey(create_scenario("table-hockey"))
             self.football_game = football(create_scenario('football'))
             self.wrestling_game = wrestling(create_scenario('wrestling'))
@@ -42,7 +46,7 @@ class AI_Olympics:
         elif 'running' in subgame:
             self.running_game.max_step = self.max_step
             self.game_pool = [{"name": 'running-competition', 'game': self.running_game}]
-        elif 'table_hockey' in subgame:
+        elif 'table-hockey' in subgame:
             self.tablehockey_game = table_hockey(create_scenario("table-hockey"))
             self.tablehockey_game.max_step = self.max_step
             self.game_pool = [{"name": 'table-hockey', "game": self.tablehockey_game}]
@@ -73,16 +77,13 @@ class AI_Olympics:
         selected_game_idx = self.selected_game_idx_pool[self.current_game_count]
 
         # print(f'Playing {self.game_pool[selected_game_idx]["name"]}')
-        # if self.game_pool[selected_game_idx]['name'] == 'running-competition':
-        #     self.game_pool[selected_game_idx]['game'] = \
-        #         Running_competition.reset_map(meta_map= self.running_game.meta_map,map_id=None, vis=200, vis_clear=5,
-        #                                       agent1_color = 'light red', agent2_color = 'blue')     #random sample a map
-        #     self.game_pool[selected_game_idx]['game'].max_step = self.max_step
 
         self.current_game = self.game_pool[selected_game_idx]['game']
         self.game_score = [0, 0]
 
         init_obs = self.current_game.reset()
+        if self.game_pool[selected_game_idx]['name'] == 'running-competition':
+            self.game_pool[selected_game_idx]['game'].max_step = self.max_step
         if self.current_game.game_name == 'running-competition':
             init_obs = [{'agent_obs': init_obs[i], 'id': f'team_{i}'} for i in [0, 1]]
         for i in init_obs:
@@ -97,7 +98,7 @@ class AI_Olympics:
         return init_obs
 
     def step(self, action_list):
-
+        selected_game_idx_pool = list(range(len(self.game_pool)))
         obs, reward, done, _ = self.current_game.step(action_list)
 
         if self.current_game.game_name == 'running-competition':

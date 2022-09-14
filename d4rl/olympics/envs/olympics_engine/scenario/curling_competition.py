@@ -41,7 +41,7 @@ class curling_competition(OlympicsBase):
         self.round_max_step = map['env_cfg']['round_max_step']
 
         self.print_log = False
-        self.draw_obs = True
+        self.draw_obs = False
         self.show_traj = False
         self.start_pos = [300,150]
         self.start_init_obs = 90

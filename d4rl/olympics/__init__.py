@@ -49,26 +49,24 @@ DATASET_URLS = {}
 # ]
 
 ALL_ENVS = [
+    'jidi-olympics-running-expert-v0',
     'jidi-olympics-rd_running-expert-v0',
-    'jidi-olympics-table_hockey-expert-v0',
+    'jidi-olympics-table-hockey-expert-v0',
     'jidi-olympics-football-expert-v0',
     'jidi-olympics-wrestling-expert-v0',
     'jidi-olympics-curling-expert-v0',
     'jidi-olympics-billiard-expert-v0',
+    'jidi-olympics-integrated-expert-v0',
 ]
 
 for env in ALL_ENVS:
     register(
         id=env,
-        entry_point='d4rl.gym_olympics.env:OfflineOlympicsEnv',
+        entry_point='d4rl.olympics.env:OfflineOlympicsEnv',
         kwargs={
             'game': env,
-            'reward_type': '',
-            'reset_target': '',
             'ref_min_score': -100.,
             'ref_max_score': 100.,
-            'map_idx': None,
-            'max_episode_steps': 400,
         }
     )
 

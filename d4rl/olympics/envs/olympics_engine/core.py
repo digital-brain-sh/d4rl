@@ -17,9 +17,6 @@ from .viewer import Viewer, debug
 from .tools.func import *
 from .tools.settings import *
 
-
-
-
 class OlympicsBase(object):
     def __init__(self, map, seed=None):
         self.VIEW_ITSELF = True
@@ -78,7 +75,7 @@ class OlympicsBase(object):
         #self.is_render = True
         self.display_mode = False
 
-        self.reset()
+        # self.reset()
         #self.check_overlap()
 
     def check_valid_map(self):      #not using due to conflicting with arc center repitition...
@@ -850,7 +847,11 @@ class OlympicsBase(object):
                 if a_i == agent_idx:
                     continue
                 else:
-                    vec_o_b = (self.agent_pos[a_i][0], -self.agent_pos[a_i][1])
+                    try:
+                        vec_o_b = (self.agent_pos[a_i][0], -self.agent_pos[a_i][1])
+                    except Exception as e:
+                        print('error')
+                        raise e
                     vec_oo_ = (-agent_x, agent_y)
                     vec_ob = (vec_o_b[0]+vec_oo_[0], vec_o_b[1]+vec_oo_[1])
                     vec_bc_ = (vec_oc_[0]-vec_ob[0], vec_oc_[1]-vec_ob[1])
@@ -1029,8 +1030,6 @@ class OlympicsBase(object):
             if self.print_log2:
                 print('agent {} get obs duration {}'.format(agent_idx, time.time() - time_stamp))
         self.obs_list = obs_list
-
-
         return obs_list
 
     def change_inner_state(self):
@@ -1139,3 +1138,4 @@ class OlympicsBase(object):
 
         #pos_r = copy.deepcopy(self.pos)
         #self.record.append(pos_r)
+

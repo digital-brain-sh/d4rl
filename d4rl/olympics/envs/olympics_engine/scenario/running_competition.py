@@ -16,11 +16,27 @@ maps_path = os.path.join(current_path, "running_competition_maps/maps.json")
 
 
 class Running_competition(OlympicsBase):
-    def __init__(self, meta_map, map_id = None, seed = None, vis = None, vis_clear=None, agent1_color = 'purple', agent2_color = 'green'):
+    def __init__(self, meta_map, rd_running=False, seed=None, vis=None, vis_clear=None, agent1_color='purple',
+                 agent2_color='green', map_idx=None):
         # self.minimap_mode = map['obs_cfg'].get('minimap', False)
-
-        Gamemap, map_index = Running_competition.choose_a_map(idx = map_id)        #fixme(yan): penatration in some maps, need to check engine, vis
+        self.random_map_choose = rd_running
+        if rd_running:
+            self.all_map_stats = [create_scenario("map" + str(idx), file_path=maps_path) for idx in range(1, 12)]
+            self.map_index = random.randint(1, 11)
+            Gamemap = self.all_map_stats[self.map_index - 1]
+        else:
+            if map_idx is None:
+                self.map_index = random.randint(1, 11)
+            else:
+                self.map_index = map_idx
+            assert 1 <= self.map_index <= 11
+            Gamemap, map_index = Running_competition.choose_a_map(idx=self.map_index)
+        self.agent1_color = agent1_color
+        self.agent2_color = agent2_color
+        self.seed = seed
         if vis is not None:
+            self.vis = vis
+            self.vis_clear = vis_clear
             for a in Gamemap['agents']:
                 a.visibility = vis
                 a.visibility_clear = vis_clear
@@ -31,9 +47,7 @@ class Running_competition(OlympicsBase):
                     a.color = agent2_color
                     a.original_color = agent2_color
 
-
         self.meta_map = meta_map
-        self.map_index = map_index
 
         super(Running_competition, self).__init__(Gamemap, seed)
 
@@ -48,8 +62,8 @@ class Running_competition(OlympicsBase):
         self.speed_cap = meta_map['env_cfg']['speed_cap']
         self.faster = meta_map['env_cfg']['faster']
 
-        self.tau = self.original_tau*self.faster
-        self.gamma = 1-(1-self.original_gamma)*self.faster
+        self.tau = self.original_tau * self.faster
+        self.gamma = 1 - (1 - self.original_gamma) * self.faster
 
         # self.gamma = 1  # v衰减系数
         # self.restitution = 0.5
@@ -59,28 +73,64 @@ class Running_competition(OlympicsBase):
         #
         # self.speed_cap =  100
         #
-        # self.draw_obs = True
+        self.draw_obs = False
         # self.show_traj = True
 
     @staticmethod
-    def reset_map(meta_map, map_id, vis=None, vis_clear=None, agent1_color = 'purple', agent2_color = 'green'):
-        return Running_competition(meta_map, map_id, vis=vis, vis_clear = vis_clear, agent1_color=agent1_color, agent2_color=agent2_color)
+    def reset_map(meta_map, map_id, vis=None, vis_clear=None, agent1_color='purple', agent2_color='green'):
+        return Running_competition(meta_map, rd_running=False, vis=vis, vis_clear=vis_clear, agent1_color=agent1_color,
+                                   agent2_color=agent2_color)
+
+    def reset(self):
+        if self.random_map_choose:
+            self.map_index = random.randint(1, 11)
+            Gamemap = self.all_map_stats[self.map_index - 1]
+            for a in Gamemap['agents']:
+                a.visibility = self.vis
+                a.visibility_clear = self.vis_clear
+                if a.color == 'purple':
+                    a.color = self.agent1_color
+                    a.original_color = self.agent1_color
+                elif a.color == 'green':
+                    a.color = self.agent2_color
+                    a.original_color = self.agent2_color
+            super(Running_competition, self).__init__(Gamemap, self.seed)
+            # self.game_name = 'running-competition'
+            # self.original_tau = self.meta_map['env_cfg']['tau']
+            # self.original_gamma = self.meta_map['env_cfg']['gamma']
+            # self.wall_restitution = self.meta_map['env_cfg']['wall_restitution']
+            # self.circle_restitution = self.meta_map['env_cfg']['circle_restitution']
+            # self.max_step = self.meta_map['env_cfg']['max_step']
+            # self.energy_recover_rate = self.meta_map['env_cfg']['energy_recover_rate']
+            # self.speed_cap = self.meta_map['env_cfg']['speed_cap']
+            # self.faster = self.meta_map['env_cfg']['faster']
+            # self.tau = self.original_tau * self.faster
+            # self.gamma = 1 - (1 - self.original_gamma) * self.faster
+        self.set_seed()
+        self.init_state()
+        self.step_cnt = 0
+        self.done = False
+        self.viewer = Viewer(self.view_setting)
+        self.display_mode=False
+        self.draw_obs = False
+        # print('draw obs: ', self.draw_obs)
+        return self.get_obs()
+
 
     @staticmethod
     def choose_a_map(idx=None):
         if idx is None:
-            idx = random.randint(1,4)
-        MapStats = create_scenario("map"+str(idx), file_path=  maps_path)
+            idx = random.randint(1, 11)
+        MapStats = create_scenario("map" + str(idx), file_path=maps_path)
         return MapStats, idx
 
     def check_overlap(self):
-        #todo
+        # todo
         pass
 
     def get_reward(self):
 
         agent_reward = [0. for _ in range(self.agent_num)]
-
 
         for agent_idx in range(self.agent_num):
             if self.agent_list[agent_idx].finished:
@@ -99,16 +149,14 @@ class Running_competition(OlympicsBase):
 
         return False
 
-
-
     def step(self, actions_list):
 
         previous_pos = self.agent_pos
 
-        time1 = time.time()
+        # time1 = time.time()
         self.stepPhysics(actions_list, self.step_cnt)
-        time2 = time.time()
-        #print('stepPhysics time = ', time2 - time1)
+        # time2 = time.time()
+        # print('stepPhysics time = ', time2 - time1)
         self.speed_limit()
 
         self.cross_detect(previous_pos, self.agent_pos)
@@ -117,12 +165,12 @@ class Running_competition(OlympicsBase):
         step_reward = self.get_reward()
         done = self.is_terminal()
 
-        time3 = time.time()
+        # time3 = time.time()
         obs_next = self.get_obs()
-        time4 = time.time()
-        #print('render time = ', time4-time3)
+        # time4 = time.time()
+        # print('render time = ', time4-time3)
         # obs_next = 1
-        #self.check_overlap()
+        # self.check_overlap()
         self.change_inner_state()
 
         return obs_next, step_reward, done, ''
@@ -130,18 +178,16 @@ class Running_competition(OlympicsBase):
     def check_win(self):
         if self.agent_list[0].finished and not (self.agent_list[1].finished):
             return '0'
-        elif not(self.agent_list[0].finished) and self.agent_list[1].finished:
+        elif not (self.agent_list[0].finished) and self.agent_list[1].finished:
             return '1'
         else:
             return '-1'
 
-
     def render(self, info=None):
-
 
         if not self.display_mode:
             self.viewer.set_mode()
-            self.display_mode=True
+            self.display_mode = True
 
         self.viewer.draw_background()
         for w in self.map['objects']:
@@ -154,7 +200,7 @@ class Running_competition(OlympicsBase):
 
         if self.draw_obs:
             if len(self.obs_list) > 0:
-                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap = 100)
+                self.viewer.draw_view(self.obs_list, self.agent_list, leftmost_x=500, upmost_y=10, gap=100)
 
         if self.show_traj:
             self.get_trajectory()
@@ -162,19 +208,15 @@ class Running_competition(OlympicsBase):
 
         self.viewer.draw_direction(self.agent_pos, self.agent_accel)
 
-
         # debug('mouse pos = '+ str(pygame.mouse.get_pos()))
         debug('Step: ' + str(self.step_cnt), x=30)
         if info is not None:
             debug(info, x=100)
 
-
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
-
 
 
 if __name__ == '__main__':
