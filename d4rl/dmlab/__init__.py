@@ -65,6 +65,7 @@ for game in ALL_LEVELS:
         entry_point='d4rl.dmlab.envs:OfflineDMLABEnv',
         kwargs={
             'game': cur_game,
+            'gen_id': 0,
             'dataset_name': game,
             'extra_input': False if game not in languages else True,
             'ref_min_score': infos.REF_MIN_SCORE.get(env_name, None),
@@ -96,6 +97,7 @@ for game in NEW_GEN_LEVELS:
         entry_point='d4rl.dmlab.envs:OfflineDMLABEnv',
         kwargs={
             'game': cur_game,
+            'gen_id': 1,
             'dataset_name': game,
             'extra_input': False if game not in languages else True,
             'ref_min_score': infos.REF_MIN_SCORE.get(env_name, None),
@@ -126,6 +128,7 @@ for game in GENERATED_LEVELS:
         entry_point='d4rl.dmlab.envs:OfflineDMLABEnv',
         kwargs={
             'game': cur_game,
+            'gen_id': -1,
             'dataset_name': game,
             'extra_input': False if game not in languages else True,
             'ref_min_score': infos.REF_MIN_SCORE.get(env_name, None),

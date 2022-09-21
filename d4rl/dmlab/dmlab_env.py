@@ -60,6 +60,32 @@ NEW_ACTION_SET = (
     (0, 0, 0, 0, 0, 0, 1),  # CROUCH.
 )
 
+NEW_ACTION_DECODER = {
+    (0, 0, 0, 1, 0, 0, 0): 0,
+    (0, 0, 0, -1, 0, 0, 0): 1,  # Backward
+    (0, 0, -1, 0, 0, 0, 0): 2,  # Strafe Left
+    (0, 0, 1, 0, 0, 0, 0): 3,  # Strafe Right
+    (-20, 0, 0, 0, 0, 0, 0): 4,  # Look Left
+    (20, 0, 0, 0, 0, 0, 0): 5,  # Look Right
+    (-20, 0, 0, 1, 0, 0, 0): 6,  # Look Left + Forward
+    (20, 0, 0, 1, 0, 0, 0): 7,  # Look Right + Forward
+    (-40, 0, 0, 0, 0, 0, 0): 8,  # Look Left
+    (40, 0, 0, 0, 0, 0, 0): 9,  # Look Right
+    (-40, 0, 0, 1, 0, 0, 0): 10,  # Look Left + Forward
+    (40, 0, 0, 1, 0, 0, 0): 11,  # Look Right + Forward
+    (0, -20, 0, 0, 0, 0, 0): 12,  # Look DOWN
+    (0, 20, 0, 0, 0, 0, 0): 13,  # Look UP
+    (0, -20, 0, 1, 0, 0, 0): 14,  # Look DOWN + Forward
+    (0, 20, 0, 1, 0, 0, 0): 15,  # Look UP + Forward
+    (0, -40, 0, 0, 0, 0, 0): 16,  # Look DOWN
+    (0, 40, 0, 0, 0, 0, 0): 17,  # Look UP
+    (0, -40, 0, 1, 0, 0, 0): 18,  # Look DOWN + Forward
+    (0, 40, 0, 1, 0, 0, 0): 19,  # Look UP + Forward
+    (0, 0, 0, 0, 1, 0, 0): 20,  # Fire.
+    (0, 0, 0, 0, 0, 1, 0): 21,  # JUMP.
+    (0, 0, 0, 0, 0, 0, 1): 22,  # CROUCH.
+}
+
 ACTION_DECODER = {
     (0, 0, 0, 1, 0, 0, 0): 0,
     (0, 0, 0, -1, 0, 0, 0): 1, 
@@ -108,6 +134,10 @@ def post_process(obs):
     obs = np.pad(obs, ((0, 0), (0, 0), (4, 4), (0, 0)), 'constant').astype(np.float32)
     return obs
 
+def new_post_process(obs):
+    obs = np.pad(obs, ((0, 0), (0, 0), (4, 4), (0, 0)), 'constant').astype(np.float32)
+    return obs  
+
 def action_mapper(actions):
     if len(actions.shape) == 1:
         return np.array(ACTION_DECODER[tuple(actions)])
@@ -115,6 +145,16 @@ def action_mapper(actions):
         decoded_action = []
         for item in actions[:]:
             decoded_action.append(ACTION_DECODER[tuple(item)])
+        decoded_action = np.array(decoded_action, dtype=np.int64)
+        return decoded_action
+
+def gen_action_mapper(actions):
+    if len(actions.shape) == 1:
+        return np.array(NEW_ACTION_DECODER[tuple(actions)])
+    else:
+        decoded_action = []
+        for item in actions[:]:
+            decoded_action.append(NEW_ACTION_DECODER[tuple(item)])
         decoded_action = np.array(decoded_action, dtype=np.int64)
         return decoded_action
 
@@ -140,8 +180,15 @@ class DmLab(gym.Env):
     """DeepMind Lab wrapper."""
 
     def __init__(self, game, **kwargs):
-        self.post_process_fn = post_process
-        self.action_mapper = action_mapper
+        self.gen_id = kwargs.get('gen_id')
+        if self.gen_id == 0:
+            self.post_process_fn = post_process
+            self.action_mapper = action_mapper
+            self._action_set = DEFAULT_ACTION_SET
+        elif self.gen_id == 1 or self.gen_id == -1:
+            self.post_process_fn = new_post_process
+            self.action_mapper = gen_action_mapper
+            self._action_set = NEW_ACTION_SET
         config = {}
         if 'test' in game:
             config['allowHoldOutLevels'] = 'true'
@@ -167,7 +214,7 @@ class DmLab(gym.Env):
         #     observations=['RGB_INTERLEAVED', 'INSTR'],
         #     config={k: str(v) for k, v in config.items()},
         # )
-        self._action_set = DEFAULT_ACTION_SET
+        
         self.action_space = gym.spaces.Discrete(len(self._action_set))
         self.observation_space = gym.spaces.Box(
             low=0,
