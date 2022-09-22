@@ -1,4 +1,4 @@
-add new gen level to your dmlab env
+Add new gen level to your dmlab env
 
 Here is an example, it works for me. You may change the path if necessary. 
 ```bash
