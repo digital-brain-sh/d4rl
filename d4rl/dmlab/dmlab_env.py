@@ -35,29 +35,21 @@ DEFAULT_ACTION_SET = (
 )
 
 NEW_ACTION_SET = (
-    (0, 0, 0, 1, 0, 0, 0),  # Forward
-    (0, 0, 0, -1, 0, 0, 0),  # Backward
-    (0, 0, -1, 0, 0, 0, 0),  # Strafe Left
-    (0, 0, 1, 0, 0, 0, 0),  # Strafe Right
-    (-20, 0, 0, 0, 0, 0, 0),  # Look Left
-    (20, 0, 0, 0, 0, 0, 0),  # Look Right
-    (-20, 0, 0, 1, 0, 0, 0),  # Look Left + Forward
-    (20, 0, 0, 1, 0, 0, 0),  # Look Right + Forward
-    (-40, 0, 0, 0, 0, 0, 0),  # Look Left
-    (40, 0, 0, 0, 0, 0, 0),  # Look Right
-    (-40, 0, 0, 1, 0, 0, 0),  # Look Left + Forward
-    (40, 0, 0, 1, 0, 0, 0),  # Look Right + Forward
-    (0, -20, 0, 0, 0, 0, 0),  # Look DOWN
-    (0, 20, 0, 0, 0, 0, 0),  # Look UP
-    (0, -20, 0, 1, 0, 0, 0),  # Look DOWN + Forward
-    (0, 20, 0, 1, 0, 0, 0),  # Look UP + Forward
-    (0, -40, 0, 0, 0, 0, 0),  # Look DOWN
-    (0, 40, 0, 0, 0, 0, 0),  # Look UP
-    (0, -40, 0, 1, 0, 0, 0),  # Look DOWN + Forward
-    (0, 40, 0, 1, 0, 0, 0),  # Look UP + Forward
-    (0, 0, 0, 0, 1, 0, 0),  # Fire.
-    (0, 0, 0, 0, 0, 1, 0),  # JUMP.
-    (0, 0, 0, 0, 0, 0, 1),  # CROUCH.
+    (0, 0, 0, 1, 0, 0, 0),    # Forward
+    (0, 0, 0, -1, 0, 0, 0),   # Backward
+    (0, 0, -1, 0, 0, 0, 0),   # Strafe Left
+    (0, 0, 1, 0, 0, 0, 0),    # Strafe Right
+    (-10, 0, 0, 0, 0, 0, 0),  # Small Look Left
+    (10, 0, 0, 0, 0, 0, 0),   # Small Look Right
+    (-60, 0, 0, 0, 0, 0, 0),  # Large Look Left
+    (60, 0, 0, 0, 0, 0, 0),   # Large Look Right
+    (0, 10, 0, 0, 0, 0, 0),   # Look Down
+    (0, -10, 0, 0, 0, 0, 0),  # Look Up
+    (-10, 0, 0, 1, 0, 0, 0),  # Forward + Small Look Left
+    (10, 0, 0, 1, 0, 0, 0),   # Forward + Small Look Right
+    (-60, 0, 0, 1, 0, 0, 0),  # Forward + Large Look Left
+    (60, 0, 0, 1, 0, 0, 0),   # Forward + Large Look Right
+    (0, 0, 0, 0, 1, 0, 0),    # Fire.
 )
 
 NEW_ACTION_DECODER = {
@@ -65,26 +57,37 @@ NEW_ACTION_DECODER = {
     (0, 0, 0, -1, 0, 0, 0): 1,  # Backward
     (0, 0, -1, 0, 0, 0, 0): 2,  # Strafe Left
     (0, 0, 1, 0, 0, 0, 0): 3,  # Strafe Right
-    (-20, 0, 0, 0, 0, 0, 0): 4,  # Look Left
-    (20, 0, 0, 0, 0, 0, 0): 5,  # Look Right
-    (-20, 0, 0, 1, 0, 0, 0): 6,  # Look Left + Forward
-    (20, 0, 0, 1, 0, 0, 0): 7,  # Look Right + Forward
-    (-40, 0, 0, 0, 0, 0, 0): 8,  # Look Left
-    (40, 0, 0, 0, 0, 0, 0): 9,  # Look Right
-    (-40, 0, 0, 1, 0, 0, 0): 10,  # Look Left + Forward
-    (40, 0, 0, 1, 0, 0, 0): 11,  # Look Right + Forward
-    (0, -20, 0, 0, 0, 0, 0): 12,  # Look DOWN
-    (0, 20, 0, 0, 0, 0, 0): 13,  # Look UP
-    (0, -20, 0, 1, 0, 0, 0): 14,  # Look DOWN + Forward
-    (0, 20, 0, 1, 0, 0, 0): 15,  # Look UP + Forward
-    (0, -40, 0, 0, 0, 0, 0): 16,  # Look DOWN
-    (0, 40, 0, 0, 0, 0, 0): 17,  # Look UP
-    (0, -40, 0, 1, 0, 0, 0): 18,  # Look DOWN + Forward
-    (0, 40, 0, 1, 0, 0, 0): 19,  # Look UP + Forward
-    (0, 0, 0, 0, 1, 0, 0): 20,  # Fire.
-    (0, 0, 0, 0, 0, 1, 0): 21,  # JUMP.
-    (0, 0, 0, 0, 0, 0, 1): 22,  # CROUCH.
+    (-10, 0, 0, 0, 0, 0, 0): 4,  # Small Look Left
+    (10, 0, 0, 0, 0, 0, 0): 5,   # Small Look Right
+    (-60, 0, 0, 0, 0, 0, 0): 6,  # Large Look Left
+    (60, 0, 0, 0, 0, 0, 0): 7,   # Large Look Right
+    (0, 10, 0, 0, 0, 0, 0): 8,   # Look Down
+    (0, -10, 0, 0, 0, 0, 0): 9,  # Look Up
+    (-10, 0, 0, 1, 0, 0, 0): 10,  # Forward + Small Look Left
+    (10, 0, 0, 1, 0, 0, 0): 11,   # Forward + Small Look Right
+    (-60, 0, 0, 1, 0, 0, 0): 12,  # Forward + Large Look Left
+    (60, 0, 0, 1, 0, 0, 0): 13,   # Forward + Large Look Right
+    (0, 0, 0, 0, 1, 0, 0): 14,    # Fire.
 }
+
+NEW_ACTION_DECODER1 = {
+    (0, 0, 0, 1, 0, 0, 0): 0,
+    (0, 0, 0, 255, 0, 0, 0): 1,  # Backward
+    (0, 0, 255, 0, 0, 0, 0): 2,  # Strafe Left
+    (0, 0, 1, 0, 0, 0, 0): 3,  # Strafe Right
+    (246, 0, 0, 0, 0, 0, 0): 4,  # Small Look Left
+    (10, 0, 0, 0, 0, 0, 0): 5,   # Small Look Right
+    (196, 0, 0, 0, 0, 0, 0): 6,  # Large Look Left
+    (60, 0, 0, 0, 0, 0, 0): 7,   # Large Look Right
+    (0, 10, 0, 0, 0, 0, 0): 8,   # Look Down
+    (0, 246, 0, 0, 0, 0, 0): 9,  # Look Up
+    (246, 0, 0, 1, 0, 0, 0): 10,  # Forward + Small Look Left
+    (10, 0, 0, 1, 0, 0, 0): 11,   # Forward + Small Look Right
+    (196, 0, 0, 1, 0, 0, 0): 12,  # Forward + Large Look Left
+    (60, 0, 0, 1, 0, 0, 0): 13,   # Forward + Large Look Right
+    (0, 0, 0, 0, 1, 0, 0): 14,    # Fire.
+}
+
 
 ACTION_DECODER = {
     (0, 0, 0, 1, 0, 0, 0): 0,
@@ -150,11 +153,11 @@ def action_mapper(actions):
 
 def gen_action_mapper(actions):
     if len(actions.shape) == 1:
-        return np.array(NEW_ACTION_DECODER[tuple(actions)])
+        return np.array(NEW_ACTION_DECODER1[tuple(actions)])
     else:
         decoded_action = []
         for item in actions[:]:
-            decoded_action.append(NEW_ACTION_DECODER[tuple(item)])
+            decoded_action.append(NEW_ACTION_DECODER1[tuple(item)])
         decoded_action = np.array(decoded_action, dtype=np.int64)
         return decoded_action
 

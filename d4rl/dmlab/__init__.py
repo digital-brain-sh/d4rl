@@ -45,7 +45,8 @@ dataset_pos = {
               'nav_maze_static_03',
               'seekavoid_arena_01',
               'stairway_to_melon',
-              ]
+              ],
+    'dgx10': ['lasertag-' + str(i) for i in range(10, 20)] + ['lasertag-' + str(i) for i in range(30, 40)], 
 }
 
 for game in ALL_LEVELS:

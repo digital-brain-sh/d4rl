@@ -29,6 +29,7 @@ class OfflineEnv(gym.Env):
         super(OfflineEnv, self).__init__()
         self.game = game
         self.__env_group_name = 'dmlab'
+        self.gen_id = kwargs.get('gen_id')
         self.cache_path = kwargs.get('cache_path', None)
         self.dataset_name = kwargs.get('dataset_name')
         self.dataset_pos = kwargs.get('dataset_pos', None)
@@ -45,8 +46,11 @@ class OfflineEnv(gym.Env):
     def dataset_filepath(self):
         # /nfs/dgx08/raid/cz/procgen_dataset
         assert self.dataset_pos is not None
+        if self.gen_id == 1 or self.gen_id == -1:
+            return f'/nfs/{self.dataset_pos}/raid/dmlab_gen_dataset/{self.dataset_name}/0_0.hdf5'
         # return f'/nfs/{self.dataset_pos}/raid/cz/dmlab_dataset/{self.dataset_name}/0_0.hdf5'
-        return f'/nfs/{self.dataset_pos}/raid/cz/dmlab_dataset/{self.dataset_name}'
+        else:
+            return f'/nfs/{self.dataset_pos}/raid/cz/dmlab_dataset/{self.dataset_name}/0_0.hdf5'
 
     def get_dataset(self, h5path=None):
         if h5path is None:
