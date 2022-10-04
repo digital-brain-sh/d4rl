@@ -8,7 +8,7 @@ for task_and_config, uri in DATASET_URLS.items():
     register(
         id=env_id,
         entry_point='d4rl.gym_robotics.env:OfflineRobotics',
-        max_episode_steps=100,
+        max_episode_steps=1000,
         kwargs={
             'task_name': task,
             'config': config,
@@ -17,3 +17,5 @@ for task_and_config, uri in DATASET_URLS.items():
             'ref_max_score': REF_MAX_SCORE[task_and_config]
         }
     )
+
+ALL_ENVS = list(map(lambda x: f"robotics-{x}-expert-v1", DATASET_URLS.keys()))

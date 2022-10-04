@@ -1,5 +1,5 @@
 DATASET_URLS = {
-    "a1-default": "/raid/robotics/dataset/robotics_dog.pkl",
+    "a1-default": "/raid/robotics/dataset/a1-default.pkl",
 }
 
 REF_MIN_SCORE = {
