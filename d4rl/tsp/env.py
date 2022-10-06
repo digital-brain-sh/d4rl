@@ -143,6 +143,8 @@ class TSPEnv(gym.Env):
         if self.dataset is None:
             with open(self.dataset_path, 'rb') as f:
                 data_all = pickle.load(f)
+                if "time" not in data_all:
+                    data_all["time"] = np.tile(np.arange(self.scale), (len(data_all["data"]), 1))
                 self.dataset = Namespace(**{
                     "coords": np.asarray(data_all["data"]),
                     "soln": np.asarray(data_all["seq"]),
