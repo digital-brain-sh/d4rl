@@ -1,3 +1,4 @@
+from argparse import Namespace
 from multiprocessing.connection import Connection
 import warnings
 import gym
@@ -12,7 +13,7 @@ from isaacgym import gymapi
 
 import torch
 from legged_gym import envs
-from legged_gym.utils import task_registry, get_args
+from legged_gym.utils import task_registry
 from legged_gym.envs import LeggedRobot
 
 
@@ -43,25 +44,42 @@ def get_env_args(name):
         return A1RoughCfg()
 
 
-def task_running(main, conn: Connection, task_name: str, mesh_type: str = "trimesh"):
+def task_running(main, conn: Connection, task_name: str, config: str = "trimesh"):
     main.close()
-    leg_args = get_args()
-    leg_args.task = task_name
-    leg_args.headless = True
-    leg_args.sim_device = "cpu"
-    leg_args.sim_device_type = "cpu"
-    leg_args.pipeline = 'cpu'
-    leg_args.use_gpu = False
-    leg_args.use_gpu_pipeline = False
-    leg_args.rl_device = "cpu"
-    leg_args.device = "cpu"
-    leg_args.num_envs = 1
-    env_args = get_env_args(task_name)
-    env_args.seed = 1
-    env_args.terrain.mesh_type = mesh_type
+    leg_args = Namespace(
+        task=task_name,
+        headless=True,
+        sim_device="cpu",
+        sim_device_type="cpu",
+        pipeline="cpu",
+        use_gpu=False,
+        use_gpu_pipeline=False,
+        rl_device="cpu",
+        device="cpu",
+        num_envs=1,
+        resume=False,
+        experiment_name=None,
+        run_name=None,
+        load_run=None,
+        checkpoint=None,
+        horovod=False,
+        seed=1,
+        max_iteration=None,
+        graphics_device_id=0,
+        flex=False,
+        physx=False,
+        num_threads=0,
+        subscenes=0,
+        slices=None,
+        physics_engine=gymapi.SIM_PHYSX
+    )
 
-    # leg_args.physics_engine = gymapi.SIM_FLEX
-    env, task_config = task_registry.make_env(task_name, leg_args, env_args)
+    if config == "default":
+        env_cfg = None
+    else:
+        raise NotImplementedError
+
+    env, task_config = task_registry.make_env(task_name, leg_args, env_cfg)
     while True:
         # 0: operation, 1: data
         msg = conn.recv()
@@ -96,28 +114,56 @@ class RoboticsEnv(gym.Env):
     def __init__(self, task_name: str, config: str = "default") -> None:
         super().__init__()
 
-        leg_args = get_args()
-        leg_args.task = task_name
-        leg_args.headless = True
-        leg_args.sim_device = "cpu"
-        leg_args.sim_device_type = "cpu"
-        leg_args.pipeline = 'cpu'
-        leg_args.use_gpu = False
-        leg_args.use_gpu_pipeline = False
-        leg_args.rl_device = "cpu"
-        leg_args.device = "cpu"
-        leg_args.num_envs = 1
+        env_config = get_env_args(task_name)
+        env_config.env.num_envs = 1
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(env_config.env.num_observations,), dtype=np.float32)
+        self.action_space = spaces.Box(low=-np.inf, high=np.inf, shape=(env_config.env.num_actions,), dtype=np.float32)
+        self.task_name = task_name
+        self.config = config
+        self.env_config = env_config
+        self.env = None
 
-        if config == "default":
+    def _create_env(self):
+        leg_args = Namespace(
+            task=self.task_name,
+            headless=True,
+            sim_device="cpu",
+            sim_device_type="cpu",
+            pipeline="cpu",
+            use_gpu=False,
+            use_gpu_pipeline=False,
+            rl_device="cpu",
+            device="cpu",
+            num_envs=1,
+            resume=False,
+            experiment_name=None,
+            run_name=None,
+            load_run=None,
+            checkpoint=None,
+            horovod=False,
+            seed=1,
+            max_iteration=None,
+            graphics_device_id=0,
+            flex=False,
+            physx=False,
+            num_threads=0,
+            subscenes=0,
+            slices=None,
+            physics_engine=gymapi.SIM_PHYSX
+        )
+
+        if self.config == "default":
             env_cfg = None
         else:
             raise NotImplementedError
 
-        self.env, task_config = task_registry.make_env(task_name, leg_args, env_cfg)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(task_config.env.num_observations,), dtype=np.float32)
-        self.action_space = spaces.Box(low=-np.inf, high=np.inf, shape=(task_config.env.num_actions,), dtype=np.float32)
+        self.env, task_config = task_registry.make_env(self.task_name, leg_args, env_cfg)
 
     def step(self, action):
+        if isinstance(action, np.ndarray):
+            action = action.reshape(self.env_config.env.num_envs, -1)
+        else:
+            action = [action]
         action = torch.FloatTensor(action, device="cpu")
         obs, privileged_obs, rew, done, info = self.env.step(action)
         obs = obs.cpu().numpy().squeeze()
@@ -130,6 +176,8 @@ class RoboticsEnv(gym.Env):
         return obs, rew, done, info
 
     def reset(self):
+        if self.env is None:
+            self._create_env()
         obs, privileged_obs = self.env.reset()
         obs = obs.cpu().numpy().squeeze()
         if privileged_obs is not None:
@@ -137,22 +185,23 @@ class RoboticsEnv(gym.Env):
         return obs
 
 
-class SubPorcRoboticsEnv(gym.Env):
+class SubProcRoboticsEnv(gym.Env):
 
-    def __init__(self, task_name: str, mesh_type) -> None:
+    def __init__(self, task_name: str, config: str = "defalut") -> None:
         super().__init__()
+        self.task_name = task_name
+        self.config = config
+        env_config = get_env_args(task_name)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(env_config.env.num_observations,), dtype=np.float32)
+        self.action_space = spaces.Box(low=-np.inf, high=np.inf, shape=(env_config.env.num_actions,), dtype=np.float32)
 
+        self.conn1 = None
+        self.conn2 = None
+
+    def _create_process(self):
         conn1, conn2 = Pipe()
-        if mesh_type == "None":
-            mesh_type = None
-        self.env_process = Process(target=task_running, args=(conn1, conn2, task_name, mesh_type))
+        self.env_process = Process(target=task_running, args=(conn1, conn2, self.task_name, self.config))
         self.env_process.start()
-
-        conn1.send(["get_task_config"])
-        task_config = conn1.recv()
-
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(task_config.env.num_observations,), dtype=np.float32)
-        self.action_space = spaces.Box(low=-np.inf, high=np.inf, shape=(task_config.env.num_actions,), dtype=np.float32)
         self.conn1 = conn1
         self.conn2 = conn2
 
@@ -175,6 +224,8 @@ class SubPorcRoboticsEnv(gym.Env):
         return obs, rew, done, info
 
     def reset(self):
+        if self.conn1 is None:
+            self._create_process()
         self.conn1.send(["reset"])
         obs, privileged_obs = self.conn1.recv()
         return obs
@@ -191,4 +242,11 @@ class OfflineRobotics(RoboticsEnv, OfflineEnv):
 
     def __init__(self, dataset_url=None, ref_max_score=None, ref_min_score=None, deprecated=False, deprecation_message=None, **kwargs):
         RoboticsEnv.__init__(self, kwargs["task_name"], kwargs["config"])
+        OfflineEnv.__init__(self, dataset_url, ref_max_score, ref_min_score, deprecated, deprecation_message, **kwargs)
+
+
+class OfflineSubProcRobotics(SubProcRoboticsEnv, OfflineEnv):
+
+    def __init__(self, dataset_url=None, ref_max_score=None, ref_min_score=None, deprecated=False, deprecation_message=None, **kwargs):
+        SubProcRoboticsEnv.__init__(self, kwargs["task_name"], kwargs["config"])
         OfflineEnv.__init__(self, dataset_url, ref_max_score, ref_min_score, deprecated, deprecation_message, **kwargs)

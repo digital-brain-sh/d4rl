@@ -3,9 +3,9 @@ DATASET_URLS = {
 }
 
 REF_MIN_SCORE = {
-    "a1-default": 0.0,
+    "a1-default": 0.13609728,
 }
 
 REF_MAX_SCORE = {
-    "a1-default": 2.0,
+    "a1-default": 24.51226,
 }
