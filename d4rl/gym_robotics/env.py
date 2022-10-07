@@ -152,10 +152,7 @@ class RoboticsEnv(gym.Env):
             physics_engine=gymapi.SIM_PHYSX
         )
 
-        if self.config == "default":
-            env_cfg = None
-        else:
-            raise NotImplementedError
+        env_cfg = None
 
         self.env, task_config = task_registry.make_env(self.task_name, leg_args, env_cfg)
 
