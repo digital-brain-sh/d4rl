@@ -42,9 +42,9 @@ class StateTSP(NamedTuple):
         assert len(loc.shape) == 2, loc.shape
 
         n_loc, _ = loc.shape
-        loc_tensor = torch.from_numpy(loc).float()
+        loc_tensor = torch.from_numpy(loc.copy()).float()
         state_tsp = cls(
-            loc=loc,
+            loc=loc.copy(),
             # dist=np.linalg.norm(loc[:, None, :] - loc[None, :, :], axis=-1),  # (n_loc, n_loc)
             dist=(loc_tensor[:, None, :] - loc_tensor[None, :, :]).norm(p=2, dim=-1).numpy(),
             first_a=0,
