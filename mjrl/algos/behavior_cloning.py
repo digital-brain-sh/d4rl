@@ -104,7 +104,6 @@ class BC:
             act_expert = Variable(torch.from_numpy(act_expert).float().to(self.device), requires_grad=False)
         act_pi = self.policy.model(obs).squeeze()
         act_loss = torch.mean(act_pi - act_expert)
-        # print("---------", act_pi.shape, act_expert.shape)
         return self.loss_criterion(act_pi, act_expert.detach()), act_loss
 
     def fit(self, data, suppress_fit_tqdm=False, **kwargs):

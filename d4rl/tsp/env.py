@@ -186,7 +186,7 @@ class OfflineTSPEnv(TSPEnv, OfflineEnv):
         return dataset
 
     def get_normalized_score(self, score):
-        self.ref_max_score = -self.dataset.val[self.sequence_idx]
+        # self.ref_max_score = -self.dataset.val[self.sequence_idx]
         if self.ref_min_score is None:
             raise ValueError("Reference score not provided for env")
         return (score - self.ref_min_score) / (self.ref_max_score - self.ref_min_score)

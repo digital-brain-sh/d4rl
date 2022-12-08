@@ -77,7 +77,6 @@ class BC:
         else:
             policy = F.softmax(action_logits, dim=-1)
             actions = torch.from_numpy(act).long().to(action_logits.device)
-            # print("max actions", self.policy.output_dim, actions.max(), actions.min())
             action_error = torch.mean(torch.abs(policy.argmax(-1) - actions.float())).detach()
             LL = F.cross_entropy(policy, actions)
         return LL, action_error

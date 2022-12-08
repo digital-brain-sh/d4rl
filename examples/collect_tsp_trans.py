@@ -30,7 +30,7 @@ def env_runner(env, traj_idx_start, traj_idx_end):
             next_obs, rew, done, info = env.step(action)
             obs_list.append(obs)
             rew_list.append(rew)
-            done_list.append(rew)
+            done_list.append(done)
             action_list.append(action)
             # writer.append_data(obs, action, rew, done)
             obs = next_obs
@@ -47,8 +47,10 @@ def env_runner(env, traj_idx_start, traj_idx_end):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Collect TSP experiences")
 
-    parser.add_argument("--scale", type=int, help="problem scale", default=100, choices={100, 200})
+    parser.add_argument("--scale", type=int, help="problem scale", required=True, choices={100, 200})
     parser.add_argument("--env-dataset-dir", type=str, help="original dataset, including node-embedding path and environment dataset path.", required=True)
+    parser.add_argument("--start", type=int, required=True)
+    parser.add_argument("--end", type=int, required=True)
     parser.add_argument("--rl-dataset-dir", type=str, help="destinated directory for RL trajectories storage.")
     args = parser.parse_args()
 
@@ -58,7 +60,8 @@ if __name__ == "__main__":
     if not ray.is_initialized():
         ray.init()
     actor_pool = ActorPool([env_runner.remote for _ in range(actor_num)])
-    for fname in os.listdir(env_dataset_dir):
+    fnames = [f"tsp200_city_seed{i}.pkl" for i in range(args.start, args.end)]
+    for fname in fnames: # os.listdir(env_dataset_dir):
         if not fname.endswith(".pkl"):
             continue
         fpath = os.path.join(env_dataset_dir, fname)
